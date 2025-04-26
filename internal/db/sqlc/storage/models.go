@@ -9,7 +9,8 @@ import (
 )
 
 type User struct {
-	ID    uuid.UUID
-	Login string
-	Name  string
+	ID       uuid.UUID
+	Login    string
+	Name     string
+	Password string
 }

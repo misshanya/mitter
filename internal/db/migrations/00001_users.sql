@@ -3,7 +3,8 @@
 CREATE TABLE IF NOT EXISTS users (
   id UUID NOT NULL default gen_random_uuid(),
   login VARCHAR(50) NOT NULL UNIQUE,
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  password TEXT NOT NULL
 );
 -- +goose StatementEnd
 

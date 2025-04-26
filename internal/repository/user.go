@@ -15,9 +15,10 @@ func NewUserRepository(q *storage.Queries) *UserRepository {
 	return &UserRepository{queries: q}
 }
 
-func (r *UserRepository) CreateUser(ctx context.Context, user models.UserCreate) (uuid.UUID, error) {
+func (r *UserRepository) CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, error) {
 	return r.queries.CreateUser(ctx, storage.CreateUserParams{
-		Login: user.Login,
-		Name:  user.Name,
+		Login:          user.Login,
+		Name:           user.Name,
+		Hashedpassword: user.HashedPassword,
 	})
 }

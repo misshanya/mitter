@@ -6,12 +6,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/misshanya/mitter/internal/models"
+	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"net/http"
 )
 
 type userRepository interface {
-	CreateUser(ctx context.Context, user models.UserCreate) (uuid.UUID, error)
+	CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, error)
 }
 
 type UserService struct {
@@ -30,7 +31,18 @@ func isUniqueViolation(err error) bool {
 	return false
 }
 
-func (s *UserService) CreateUser(ctx context.Context, user models.UserCreate) (uuid.UUID, *models.HTTPError) {
+func (s *UserService) CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, *models.HTTPError) {
+	// Hash password and store it in user.HashedPassword
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		slog.Error("error hashing password", slog.Any("err", err))
+		return uuid.Nil, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+	}
+	user.HashedPassword = string(hashedPassword)
+
 	id, err := s.repo.CreateUser(ctx, user)
 	if err != nil {
 		if isUniqueViolation(err) {
