@@ -11,7 +11,7 @@ import (
 )
 
 type userService interface {
-	CreateUser(ctx context.Context, user models.UserCreate) (uuid.UUID, error)
+	CreateUser(ctx context.Context, user models.UserCreate) (uuid.UUID, *models.HTTPError)
 }
 
 type UserHandler struct {
@@ -50,7 +50,7 @@ func (h *UserHandler) createUser(c echo.Context) error {
 
 	id, err := h.service.CreateUser(ctx, user)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(err.Code, err.Message)
 	}
 
 	resp := dto.UserCreateResponse{
