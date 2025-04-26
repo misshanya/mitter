@@ -1,0 +1,33 @@
+services:
+  backend:
+    build: .
+    container_name: mitter-backend
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - mitter
+
+  postgres:
+    image: postgres:17
+    container_name: mitter-db
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - mitter
+
+  redis:
+    image: redis:latest
+    container_name: mitter-redis
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - mitter
+
+networks:
+  mitter:
+    driver: bridge
