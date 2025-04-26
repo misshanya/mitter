@@ -9,3 +9,6 @@ LIMIT 1;
 -- name: GetUserByID :one
 SELECT * FROM users WHERE id = @id
 LIMIT 1;
+
+-- name: DeleteUser :exec
+DELETE FROM users WHERE id = @id;

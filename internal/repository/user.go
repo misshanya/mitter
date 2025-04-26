@@ -56,3 +56,7 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*models
 
 	return user, nil
 }
+
+func (r *UserRepository) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	return r.queries.DeleteUser(ctx, id)
+}

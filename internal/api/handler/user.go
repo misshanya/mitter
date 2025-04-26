@@ -12,6 +12,7 @@ import (
 
 type userService interface {
 	GetUser(ctx context.Context, id uuid.UUID) (*models.User, *models.HTTPError)
+	DeleteUser(ctx context.Context, id uuid.UUID) *models.HTTPError
 }
 
 type UserHandler struct {
@@ -28,6 +29,7 @@ func NewUserHandler(service userService) *UserHandler {
 
 func (h *UserHandler) Routes(group *echo.Group) {
 	group.GET("/", h.GetMe)
+	group.DELETE("/", h.DeleteUser)
 }
 
 func (h *UserHandler) GetMe(c echo.Context) error {
@@ -46,4 +48,17 @@ func (h *UserHandler) GetMe(c echo.Context) error {
 		Name:  user.Name,
 	}
 	return c.JSON(http.StatusOK, resp)
+}
+
+func (h *UserHandler) DeleteUser(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	userID := c.Get("userID").(uuid.UUID)
+
+	err := h.service.DeleteUser(ctx, userID)
+	if err != nil {
+		return echo.NewHTTPError(err.Code, err.Message)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

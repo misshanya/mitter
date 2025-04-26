@@ -11,6 +11,7 @@ import (
 	"testing"
 )
 
+// Mock service
 type mockUserService struct{}
 
 func (s *mockUserService) GetUser(ctx context.Context, id uuid.UUID) (*models.User, *models.HTTPError) {
@@ -23,6 +24,13 @@ func (s *mockUserService) GetUser(ctx context.Context, id uuid.UUID) (*models.Us
 	}, nil
 }
 
+func (s *mockUserService) DeleteUser(ctx context.Context, id uuid.UUID) *models.HTTPError {
+	_ = ctx
+	_ = id
+	return nil
+}
+
+// Tests
 func TestUserHandler_GetMe(t *testing.T) {
 	e := echo.New()
 
@@ -42,5 +50,25 @@ func TestUserHandler_GetMe(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Contains(t, rec.Body.String(), "testuser")
 		assert.Contains(t, rec.Body.String(), "Test User")
+	}
+}
+
+func TestUserHandler_DeleteUser(t *testing.T) {
+	e := echo.New()
+
+	handler := NewUserHandler(&mockUserService{})
+
+	g := e.Group("/api/v1/user")
+	handler.Routes(g)
+
+	// Create request
+	req := httptest.NewRequest(http.MethodDelete, "/api/v1/user/", nil)
+	rec := httptest.NewRecorder()
+
+	ctx := e.NewContext(req, rec)
+	ctx.Set("userID", uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65"))
+
+	if assert.NoError(t, handler.DeleteUser(ctx)) {
+		assert.Equal(t, http.StatusNoContent, rec.Code)
 	}
 }

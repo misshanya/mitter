@@ -13,6 +13,8 @@ type userRepository interface {
 	CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, error)
 	GetUserByLogin(ctx context.Context, login string) (*models.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error)
+
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
 type UserService struct {
@@ -36,4 +38,17 @@ func (s *UserService) GetUser(ctx context.Context, id uuid.UUID) (*models.User, 
 	}
 
 	return user, nil
+}
+
+func (s *UserService) DeleteUser(ctx context.Context, id uuid.UUID) *models.HTTPError {
+	// note: handle error if user not exists
+	err := s.ur.DeleteUser(ctx, id)
+	if err != nil {
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+	}
+
+	return nil
 }
