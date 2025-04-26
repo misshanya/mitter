@@ -22,3 +22,37 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.UserCreate
 		Hashedpassword: user.HashedPassword,
 	})
 }
+
+func (r *UserRepository) GetUserByLogin(ctx context.Context, login string) (*models.User, error) {
+	userDB, err := r.queries.GetUserByLogin(ctx, login)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert db user to my model
+	user := &models.User{
+		ID:             userDB.ID,
+		Login:          userDB.Login,
+		Name:           userDB.Name,
+		HashedPassword: userDB.Password,
+	}
+
+	return user, nil
+}
+
+func (r *UserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
+	userDB, err := r.queries.GetUserByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert db user to my model
+	user := &models.User{
+		ID:             userDB.ID,
+		Login:          userDB.Login,
+		Name:           userDB.Name,
+		HashedPassword: userDB.Password,
+	}
+
+	return user, nil
+}

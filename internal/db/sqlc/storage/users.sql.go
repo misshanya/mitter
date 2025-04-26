@@ -28,3 +28,37 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 	err := row.Scan(&id)
 	return id, err
 }
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, login, name, password FROM users WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Login,
+		&i.Name,
+		&i.Password,
+	)
+	return i, err
+}
+
+const getUserByLogin = `-- name: GetUserByLogin :one
+SELECT id, login, name, password FROM users WHERE login = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByLogin(ctx context.Context, login string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByLogin, login)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Login,
+		&i.Name,
+		&i.Password,
+	)
+	return i, err
+}

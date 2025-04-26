@@ -2,61 +2,24 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/misshanya/mitter/internal/models"
-	"golang.org/x/crypto/bcrypt"
-	"log/slog"
-	"net/http"
 )
 
 type userRepository interface {
 	CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, error)
+	GetUserByLogin(ctx context.Context, login string) (*models.User, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error)
 }
 
 type UserService struct {
-	repo userRepository
+	ur userRepository
 }
 
 func NewUserService(repo userRepository) *UserService {
-	return &UserService{repo: repo}
+	return &UserService{ur: repo}
 }
 
-func isUniqueViolation(err error) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code == "23505"
-	}
-	return false
-}
-
-func (s *UserService) CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, *models.HTTPError) {
-	// Hash password and store it in user.HashedPassword
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		slog.Error("error hashing password", slog.Any("err", err))
-		return uuid.Nil, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal Server Error",
-		}
-	}
-	user.HashedPassword = string(hashedPassword)
-
-	id, err := s.repo.CreateUser(ctx, user)
-	if err != nil {
-		if isUniqueViolation(err) {
-			slog.Error("user already exists", slog.String("login", user.Login))
-			return uuid.Nil, &models.HTTPError{
-				Code:    http.StatusConflict,
-				Message: "User already exists",
-			}
-		}
-		slog.Error("error creating user", slog.Any("err", err))
-		return uuid.Nil, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}
-	}
-	return id, nil
+func (s *UserService) GetUser(ctx context.Context, id uuid.UUID) (*models.User, error) {
+	return s.ur.GetUserByID(ctx, id)
 }

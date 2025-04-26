@@ -62,12 +62,25 @@ func (a *App) Start(ctx context.Context) {
 	apiGroup := a.e.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 
+	// Repos
 	userRepo := repository.NewUserRepository(queries)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
+	authRepo := repository.NewAuthRepository(rdb)
 
+	// Services
+	userService := service.NewUserService(userRepo)
+	authService := service.NewAuthService(userRepo, authRepo)
+
+	// Handlers
+	userHandler := handler.NewUserHandler(userService)
+	authHandler := handler.NewAuthHandler(authService)
+
+	// Groups
 	userGroup := v1Group.Group("/user")
+	authGroup := v1Group.Group("/auth")
+
+	// Connect handlers
 	userHandler.Routes(userGroup)
+	authHandler.Routes(authGroup)
 
 	a.e.Logger.Fatal(a.e.Start(a.cfg.Server.Addr))
 }
