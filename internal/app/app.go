@@ -11,6 +11,7 @@ import (
 	"github.com/misshanya/mitter/internal/config"
 	"github.com/misshanya/mitter/internal/db"
 	"github.com/misshanya/mitter/internal/db/sqlc/storage"
+	myMiddleware "github.com/misshanya/mitter/internal/middleware"
 	"github.com/misshanya/mitter/internal/repository"
 	"github.com/misshanya/mitter/internal/service"
 	"github.com/redis/go-redis/v9"
@@ -74,9 +75,15 @@ func (a *App) Start(ctx context.Context) {
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService)
 
+	// Middlewares
+	authMiddleware := myMiddleware.NewAuthMiddleware(authRepo)
+
 	// Groups
 	userGroup := v1Group.Group("/user")
 	authGroup := v1Group.Group("/auth")
+
+	// Apply middlewares
+	userGroup.Use(authMiddleware.RequireAuth)
 
 	// Connect handlers
 	userHandler.Routes(userGroup)
