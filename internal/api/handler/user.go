@@ -5,12 +5,13 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/misshanya/mitter/internal/api/dto"
 	"github.com/misshanya/mitter/internal/models"
 	"net/http"
 )
 
 type userService interface {
-	GetUser(ctx context.Context, id uuid.UUID) (*models.User, error)
+	GetUser(ctx context.Context, id uuid.UUID) (*models.User, *models.HTTPError)
 }
 
 type UserHandler struct {
@@ -30,5 +31,19 @@ func (h *UserHandler) Routes(group *echo.Group) {
 }
 
 func (h *UserHandler) GetMe(c echo.Context) error {
-	return c.String(http.StatusOK, "TODO")
+	ctx := c.Request().Context()
+
+	userID := c.Get("userID").(uuid.UUID)
+
+	user, err := h.service.GetUser(ctx, userID)
+	if err != nil {
+		return echo.NewHTTPError(err.Code, err.Message)
+	}
+
+	resp := dto.UserResponse{
+		ID:    user.ID,
+		Login: user.Login,
+		Name:  user.Name,
+	}
+	return c.JSON(http.StatusOK, resp)
 }
