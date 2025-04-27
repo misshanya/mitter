@@ -18,3 +18,12 @@ UPDATE users
 SET
     name = COALESCE(sqlc.narg('name'), name)
 WHERE id = @id;
+
+-- name: UpdatePassword :exec
+UPDATE users
+SET
+    password = @password
+WHERE id = @id;
+
+-- name: GetCurrentPasswordHash :one
+SELECT password FROM users WHERE id = @id;

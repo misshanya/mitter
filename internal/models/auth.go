@@ -11,3 +11,8 @@ type SignIn struct {
 	Login    string
 	Password string
 }
+
+type ChangePassword struct {
+	OldPassword string
+	NewPassword string
+}

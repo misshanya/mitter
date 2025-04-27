@@ -106,3 +106,41 @@ func (s *AuthService) SignUp(ctx context.Context, user *models.UserCreate) (uuid
 	}
 	return id, nil
 }
+
+func (s *AuthService) ChangePassword(ctx context.Context, id uuid.UUID, changePassword *models.ChangePassword) *models.HTTPError {
+	// Compare old passwords
+	currentPwdHash, err := s.ur.GetCurrentPasswordHash(ctx, id)
+	if err != nil {
+		slog.Error("error getting current password hash", slog.Any("err", err))
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(currentPwdHash), []byte(changePassword.OldPassword)); err != nil {
+		return &models.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Old password doesn't match",
+		}
+	}
+
+	// Hash new password
+	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(changePassword.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+
+	// Write new hash in db
+	if err := s.ur.ChangePassword(ctx, id, string(newPasswordHash)); err != nil {
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+
+	return nil
+}

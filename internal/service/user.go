@@ -17,6 +17,9 @@ type userRepository interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 
 	UpdateUser(ctx context.Context, id uuid.UUID, user *models.UserUpdate) error
+
+	GetCurrentPasswordHash(ctx context.Context, id uuid.UUID) (string, error)
+	ChangePassword(ctx context.Context, id uuid.UUID, newHashedPassword string) error
 }
 
 type UserService struct {

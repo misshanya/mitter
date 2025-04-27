@@ -39,6 +39,17 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getCurrentPasswordHash = `-- name: GetCurrentPasswordHash :one
+SELECT password FROM users WHERE id = $1
+`
+
+func (q *Queries) GetCurrentPasswordHash(ctx context.Context, id uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, getCurrentPasswordHash, id)
+	var password string
+	err := row.Scan(&password)
+	return password, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
 SELECT id, login, name, password FROM users WHERE id = $1
 LIMIT 1
@@ -71,6 +82,23 @@ func (q *Queries) GetUserByLogin(ctx context.Context, login string) (User, error
 		&i.Password,
 	)
 	return i, err
+}
+
+const updatePassword = `-- name: UpdatePassword :exec
+UPDATE users
+SET
+    password = $1
+WHERE id = $2
+`
+
+type UpdatePasswordParams struct {
+	Password string
+	ID       uuid.UUID
+}
+
+func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
+	_, err := q.db.Exec(ctx, updatePassword, arg.Password, arg.ID)
+	return err
 }
 
 const updateUser = `-- name: UpdateUser :exec

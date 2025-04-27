@@ -73,3 +73,14 @@ func (r *UserRepository) UpdateUser(ctx context.Context, id uuid.UUID, user *mod
 		ID:   id,
 	})
 }
+
+func (r *UserRepository) GetCurrentPasswordHash(ctx context.Context, id uuid.UUID) (string, error) {
+	return r.queries.GetCurrentPasswordHash(ctx, id)
+}
+
+func (r *UserRepository) ChangePassword(ctx context.Context, id uuid.UUID, newHashedPassword string) error {
+	return r.queries.UpdatePassword(ctx, storage.UpdatePasswordParams{
+		Password: newHashedPassword,
+		ID:       id,
+	})
+}

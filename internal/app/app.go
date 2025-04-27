@@ -71,12 +71,12 @@ func (a *App) Start(ctx context.Context) {
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthService(userRepo, authRepo)
 
-	// Handlers
-	userHandler := handler.NewUserHandler(userService)
-	authHandler := handler.NewAuthHandler(authService)
-
 	// Middlewares
 	authMiddleware := myMiddleware.NewAuthMiddleware(authRepo)
+
+	// Handlers
+	userHandler := handler.NewUserHandler(userService)
+	authHandler := handler.NewAuthHandler(authService, authMiddleware.RequireAuth)
 
 	// Groups
 	userGroup := v1Group.Group("/user")
