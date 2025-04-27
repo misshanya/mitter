@@ -111,6 +111,14 @@ func (s *AuthService) ChangePassword(ctx context.Context, id uuid.UUID, changePa
 	// Compare old passwords
 	currentPwdHash, err := s.ur.GetCurrentPasswordHash(ctx, id)
 	if err != nil {
+		// If user not found
+		if errors.Is(err, pgx.ErrNoRows) {
+			return &models.HTTPError{
+				Code:    http.StatusUnauthorized,
+				Message: "User does not exist",
+			}
+		}
+
 		slog.Error("error getting current password hash", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
