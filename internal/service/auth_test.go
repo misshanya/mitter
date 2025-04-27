@@ -57,6 +57,21 @@ func (r *mockUserRepo) UpdateUser(ctx context.Context, id uuid.UUID, user *model
 	return nil
 }
 
+func (r *mockUserRepo) GetCurrentPasswordHash(ctx context.Context, id uuid.UUID) (string, error) {
+	_ = ctx
+	_ = id
+
+	return testUser.HashedPassword, nil
+}
+
+func (r *mockUserRepo) ChangePassword(ctx context.Context, id uuid.UUID, newHashedPassword string) error {
+	_ = ctx
+	_ = id
+	_ = newHashedPassword
+
+	return nil
+}
+
 type mockAuthRepo struct{}
 
 func (r *mockAuthRepo) SaveToken(ctx context.Context, token *models.Token) error {

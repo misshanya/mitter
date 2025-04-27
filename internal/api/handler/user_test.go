@@ -30,6 +30,14 @@ func (s *mockUserService) DeleteUser(ctx context.Context, id uuid.UUID) *models.
 	return nil
 }
 
+func (s *mockUserService) UpdateUser(ctx context.Context, id uuid.UUID, user *models.UserUpdate) *models.HTTPError {
+	_ = ctx
+	_ = id
+	_ = user
+
+	return nil
+}
+
 // Tests
 func TestUserHandler_GetMe(t *testing.T) {
 	e := echo.New()

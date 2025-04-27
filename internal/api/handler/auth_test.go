@@ -29,10 +29,26 @@ func (s *mockAuthService) SignUp(ctx context.Context, user *models.UserCreate) (
 	return uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65"), nil
 }
 
+func (s *mockAuthService) ChangePassword(ctx context.Context, id uuid.UUID, changePassword *models.ChangePassword) *models.HTTPError {
+	_ = ctx
+	_ = id
+	_ = changePassword
+
+	return nil
+}
+
+// Mock auth middleware
+func mockRequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Set("userID", "b096376a-5fa9-4130-907a-709c67008a65")
+		return next(c)
+	}
+}
+
 // Tests
 func TestAuthHandler_SignIn(t *testing.T) {
 	e := echo.New()
-	handler := NewAuthHandler(&mockAuthService{})
+	handler := NewAuthHandler(&mockAuthService{}, mockRequireAuth)
 
 	g := e.Group("/api/v1/auth")
 	handler.Routes(g)
@@ -55,7 +71,7 @@ func TestAuthHandler_SignIn(t *testing.T) {
 
 func TestAuthHandler_SignUp(t *testing.T) {
 	e := echo.New()
-	handler := NewAuthHandler(&mockAuthService{})
+	handler := NewAuthHandler(&mockAuthService{}, mockRequireAuth)
 
 	g := e.Group("/api/v1/auth")
 	handler.Routes(g)
