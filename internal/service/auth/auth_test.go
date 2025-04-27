@@ -1,0 +1,48 @@
+package auth
+
+import (
+	"context"
+	"github.com/misshanya/mitter/internal/models"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+// Tests
+func TestAuthService_SignIn(t *testing.T) {
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
+
+	ctx := context.Background()
+
+	creds := models.SignIn{
+		Login:    testUser.Login,
+		Password: "qwerty123456",
+	}
+	token, err := service.SignIn(ctx, creds)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !assert.NotEmpty(t, token) {
+		t.Fatal()
+	}
+}
+
+func TestAuthService_SignUp(t *testing.T) {
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
+
+	ctx := context.Background()
+
+	user := &models.UserCreate{
+		Login:    testUser.Login,
+		Name:     testUser.Name,
+		Password: "qwerty123456",
+	}
+	id, err := service.SignUp(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !assert.NotEmpty(t, id) {
+		t.Fatal()
+	}
+}

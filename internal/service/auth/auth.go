@@ -1,4 +1,4 @@
-package service
+package auth
 
 import (
 	"context"
@@ -12,21 +12,16 @@ import (
 	"net/http"
 )
 
-type authRepository interface {
-	SaveToken(ctx context.Context, token *models.Token) error
-	GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error)
+type Service struct {
+	ur models.UserRepository
+	ar models.AuthRepository
 }
 
-type AuthService struct {
-	ur userRepository
-	ar authRepository
+func NewAuthService(ur models.UserRepository, ar models.AuthRepository) *Service {
+	return &Service{ur: ur, ar: ar}
 }
 
-func NewAuthService(ur userRepository, ar authRepository) *AuthService {
-	return &AuthService{ur: ur, ar: ar}
-}
-
-func (s *AuthService) SignIn(ctx context.Context, creds models.SignIn) (string, *models.HTTPError) {
+func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *models.HTTPError) {
 	user, err := s.ur.GetUserByLogin(ctx, creds.Login)
 	if err != nil {
 		// If user not found
@@ -77,7 +72,7 @@ func isUniqueViolation(err error) bool {
 	return false
 }
 
-func (s *AuthService) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUID, *models.HTTPError) {
+func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUID, *models.HTTPError) {
 	// Hash password and store it in user.HashedPassword
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -107,7 +102,7 @@ func (s *AuthService) SignUp(ctx context.Context, user *models.UserCreate) (uuid
 	return id, nil
 }
 
-func (s *AuthService) ChangePassword(ctx context.Context, id uuid.UUID, changePassword *models.ChangePassword) *models.HTTPError {
+func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePassword *models.ChangePassword) *models.HTTPError {
 	// Compare old passwords
 	currentPwdHash, err := s.ur.GetCurrentPasswordHash(ctx, id)
 	if err != nil {

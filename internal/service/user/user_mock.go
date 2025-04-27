@@ -1,11 +1,9 @@
-package service
+package user
 
 import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/misshanya/mitter/internal/models"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var (
@@ -18,7 +16,7 @@ var (
 	testUserID = uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65")
 )
 
-// Mock repos
+// Mock User repo
 type mockUserRepo struct{}
 
 func (r *mockUserRepo) CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, error) {
@@ -70,60 +68,4 @@ func (r *mockUserRepo) ChangePassword(ctx context.Context, id uuid.UUID, newHash
 	_ = newHashedPassword
 
 	return nil
-}
-
-type mockAuthRepo struct{}
-
-func (r *mockAuthRepo) SaveToken(ctx context.Context, token *models.Token) error {
-	_ = ctx
-	_ = token
-
-	return nil
-}
-
-func (r *mockAuthRepo) GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error) {
-	_ = ctx
-	_ = token
-
-	return testUserID, nil
-}
-
-// Tests
-func TestAuthService_SignIn(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
-
-	ctx := context.Background()
-
-	creds := models.SignIn{
-		Login:    testUser.Login,
-		Password: "qwerty123456",
-	}
-	token, err := service.SignIn(ctx, creds)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !assert.NotEmpty(t, token) {
-		t.Fatal()
-	}
-}
-
-func TestAuthService_SignUp(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
-
-	ctx := context.Background()
-
-	user := &models.UserCreate{
-		Login:    testUser.Login,
-		Name:     testUser.Name,
-		Password: "qwerty123456",
-	}
-	id, err := service.SignUp(ctx, user)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !assert.NotEmpty(t, id) {
-		t.Fatal()
-	}
 }

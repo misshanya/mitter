@@ -14,7 +14,8 @@ import (
 	"github.com/misshanya/mitter/internal/db/sqlc/storage"
 	myMiddleware "github.com/misshanya/mitter/internal/middleware"
 	"github.com/misshanya/mitter/internal/repository"
-	"github.com/misshanya/mitter/internal/service"
+	"github.com/misshanya/mitter/internal/service/auth"
+	"github.com/misshanya/mitter/internal/service/user"
 	"github.com/redis/go-redis/v9"
 	"github.com/swaggo/echo-swagger"
 	"log/slog"
@@ -73,8 +74,8 @@ func (a *App) Start(ctx context.Context) {
 	authRepo := repository.NewAuthRepository(rdb)
 
 	// Services
-	userService := service.NewUserService(userRepo)
-	authService := service.NewAuthService(userRepo, authRepo)
+	userService := user.NewUserService(userRepo)
+	authService := auth.NewAuthService(userRepo, authRepo)
 
 	// Middlewares
 	authMiddleware := myMiddleware.NewAuthMiddleware(authRepo)
