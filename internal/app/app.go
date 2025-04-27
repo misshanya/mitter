@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	_ "github.com/misshanya/mitter/docs"
 	"github.com/misshanya/mitter/internal/api/handler"
 	"github.com/misshanya/mitter/internal/config"
 	"github.com/misshanya/mitter/internal/db"
@@ -15,6 +16,7 @@ import (
 	"github.com/misshanya/mitter/internal/repository"
 	"github.com/misshanya/mitter/internal/service"
 	"github.com/redis/go-redis/v9"
+	"github.com/swaggo/echo-swagger"
 	"log/slog"
 	"os"
 )
@@ -59,6 +61,9 @@ func (a *App) Start(ctx context.Context) {
 	a.e = echo.New()
 	a.e.Use(middleware.Recover())
 	a.e.Use(middleware.Logger())
+
+	// Swagger
+	a.e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	apiGroup := a.e.Group("/api")
 	v1Group := apiGroup.Group("/v1")
