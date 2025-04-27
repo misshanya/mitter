@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/misshanya/mitter/internal/db/sqlc/storage"
 	"github.com/misshanya/mitter/internal/models"
 )
@@ -59,4 +60,16 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*models
 
 func (r *UserRepository) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return r.queries.DeleteUser(ctx, id)
+}
+
+func (r *UserRepository) UpdateUser(ctx context.Context, id uuid.UUID, user *models.UserUpdate) error {
+	name := pgtype.Text{}
+	if user.Name != nil {
+		name = pgtype.Text{String: *user.Name, Valid: true}
+	}
+
+	return r.queries.UpdateUser(ctx, storage.UpdateUserParams{
+		Name: name,
+		ID:   id,
+	})
 }

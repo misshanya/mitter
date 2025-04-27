@@ -7,3 +7,7 @@ type UserResponse struct {
 	Login string    `json:"login"`
 	Name  string    `json:"name"`
 }
+
+type UserUpdateRequest struct {
+	Name *string `json:"name" validate:"omitempty,min=2,max=50"`
+}

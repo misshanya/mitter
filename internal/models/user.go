@@ -15,3 +15,7 @@ type User struct {
 	Name           string
 	HashedPassword string
 }
+
+type UserUpdate struct {
+	Name *string
+}

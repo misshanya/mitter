@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -70,4 +71,21 @@ func (q *Queries) GetUserByLogin(ctx context.Context, login string) (User, error
 		&i.Password,
 	)
 	return i, err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET
+    name = COALESCE($1, name)
+WHERE id = $2
+`
+
+type UpdateUserParams struct {
+	Name pgtype.Text
+	ID   uuid.UUID
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser, arg.Name, arg.ID)
+	return err
 }

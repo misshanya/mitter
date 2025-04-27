@@ -49,6 +49,14 @@ func (r *mockUserRepo) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+func (r *mockUserRepo) UpdateUser(ctx context.Context, id uuid.UUID, user *models.UserUpdate) error {
+	_ = ctx
+	_ = id
+	_ = user
+
+	return nil
+}
+
 type mockAuthRepo struct{}
 
 func (r *mockAuthRepo) SaveToken(ctx context.Context, token *models.Token) error {
