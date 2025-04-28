@@ -46,3 +46,18 @@ func TestAuthService_SignUp(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestAuthService_ChangePassword(t *testing.T) {
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
+
+	ctx := context.Background()
+
+	changPwd := &models.ChangePassword{
+		OldPassword: "qwerty123456",
+		NewPassword: "qwerty1234567",
+	}
+	err := service.ChangePassword(ctx, testUserID, changPwd)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
