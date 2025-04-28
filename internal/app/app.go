@@ -15,6 +15,7 @@ import (
 	myMiddleware "github.com/misshanya/mitter/internal/middleware"
 	"github.com/misshanya/mitter/internal/repository"
 	"github.com/misshanya/mitter/internal/service/auth"
+	"github.com/misshanya/mitter/internal/service/mitt"
 	"github.com/misshanya/mitter/internal/service/user"
 	"github.com/redis/go-redis/v9"
 	"github.com/swaggo/echo-swagger"
@@ -72,10 +73,12 @@ func (a *App) Start(ctx context.Context) {
 	// Repos
 	userRepo := repository.NewUserRepository(queries)
 	authRepo := repository.NewAuthRepository(rdb)
+	mittRepo := repository.NewMittRepository(queries)
 
 	// Services
 	userService := user.NewUserService(userRepo)
 	authService := auth.NewAuthService(userRepo, authRepo)
+	mittService := mitt.NewService(mittRepo)
 
 	// Middlewares
 	authMiddleware := myMiddleware.NewAuthMiddleware(authRepo)
@@ -83,10 +86,12 @@ func (a *App) Start(ctx context.Context) {
 	// Handlers
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService, authMiddleware.RequireAuth)
+	mittHandler := handler.NewMittHandler(mittService, authMiddleware.RequireAuth)
 
 	// Groups
 	userGroup := v1Group.Group("/user")
 	authGroup := v1Group.Group("/auth")
+	mittGroup := v1Group.Group("/mitt")
 
 	// Apply middlewares
 	userGroup.Use(authMiddleware.RequireAuth)
@@ -94,6 +99,7 @@ func (a *App) Start(ctx context.Context) {
 	// Connect handlers
 	userHandler.Routes(userGroup)
 	authHandler.Routes(authGroup)
+	mittHandler.Routes(mittGroup)
 
 	a.e.Logger.Fatal(a.e.Start(a.cfg.Server.Addr))
 }
