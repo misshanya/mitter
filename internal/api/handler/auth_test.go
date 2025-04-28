@@ -91,3 +91,23 @@ func TestAuthHandler_SignUp(t *testing.T) {
 		assert.JSONEq(t, exceptedResp, rec.Body.String())
 	}
 }
+
+func TestAuthHandler_ChangePassword(t *testing.T) {
+	e := echo.New()
+	handler := NewAuthHandler(&mockAuthService{}, mockRequireAuth)
+
+	g := e.Group("/api/v1/auth")
+	handler.Routes(g)
+
+	// Create request
+	reqBody := `{"old_password":"qwerty123456","new_password":"qwerty1234567"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/change-password", strings.NewReader(reqBody))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+
+	ctx := e.NewContext(req, rec)
+
+	if assert.NoError(t, handler.changePassword(ctx)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+	}
+}
