@@ -1,0 +1,22 @@
+package dto
+
+import (
+	"github.com/google/uuid"
+	"time"
+)
+
+type MittCreateRequest struct {
+	Content string `json:"content"`
+}
+
+type MittUpdateRequest struct {
+	Content string `json:"content"`
+}
+
+type MittResponse struct {
+	ID        uuid.UUID `json:"id"`
+	Author    uuid.UUID `json:"author"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
