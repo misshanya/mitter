@@ -36,7 +36,11 @@ func NewMittHandler(ms mittService, reqAuthMdl echo.MiddlewareFunc) *MittHandler
 }
 
 func (h *MittHandler) Routes(group *echo.Group) {
-	group.POST("", h.createMitt)
+	group.POST("", h.createMitt, h.reqAuthMiddleware)
+	group.GET(":id", h.getMitt)
+	group.GET("/user/:id", h.getAllUserMitts)
+	group.PUT(":id", h.updateMitt, h.reqAuthMiddleware)
+	group.DELETE(":id", h.deleteMitt, h.reqAuthMiddleware)
 }
 
 // createMitt godoc
