@@ -45,18 +45,18 @@ func (h *MittHandler) Routes(group *echo.Group) {
 
 // createMitt godoc
 //
-//	@Summary		Create Mitt
-//	@Tags			Mitts
-//	@Security		Bearer
-//	@Param			Authorization	header	string	true	"access token 'Bearer {token}'"
-//	@Accept			json
-//	@Param			CreateMittRequest	body	dto.MittCreateRequest	true	"Create Mitt Request"
-//	@Produce		json
-//	@Success		201	{object}	dto.MittResponse
-//	@Failure		400	{object}	dto.HTTPError
-//	@Failure		401	{object}	dto.HTTPError
-//	@Failure		500	{object}	dto.HTTPError
-//	@Router			/mitt [post]
+//	@Summary	Create Mitt
+//	@Tags		Mitts
+//	@Security	Bearer
+//	@Param		Authorization	header	string	true	"access token 'Bearer {token}'"
+//	@Accept		json
+//	@Param		CreateMittRequest	body	dto.MittCreateRequest	true	"Create Mitt Request"
+//	@Produce	json
+//	@Success	201	{object}	dto.MittResponse
+//	@Failure	400	{object}	dto.HTTPError
+//	@Failure	401	{object}	dto.HTTPError
+//	@Failure	500	{object}	dto.HTTPError
+//	@Router		/mitt [post]
 func (h *MittHandler) createMitt(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -92,15 +92,15 @@ func (h *MittHandler) createMitt(c echo.Context) error {
 
 // getMitt godoc
 //
-//		@Summary		Get Mitt
-//		@Tags			Mitts
-//	 @Param id path string true "ID of mitt"
-//		@Produce		json
-//		@Success		200	{object}	dto.MittResponse
-//		@Failure		400	{object}	dto.HTTPError
-//		@Failure 		404 {object} 	dto.HTTPError
-//		@Failure		500	{object}	dto.HTTPError
-//		@Router			/mitt/{id} [get]
+//	@Summary	Get Mitt
+//	@Tags		Mitts
+//	@Param		id	path	string	true	"ID of mitt"
+//	@Produce	json
+//	@Success	200	{object}	dto.MittResponse
+//	@Failure	400	{object}	dto.HTTPError
+//	@Failure	404	{object}	dto.HTTPError
+//	@Failure	500	{object}	dto.HTTPError
+//	@Router		/mitt/{id} [get]
 func (h *MittHandler) getMitt(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -127,15 +127,15 @@ func (h *MittHandler) getMitt(c echo.Context) error {
 
 // getAllUserMitts godoc
 //
-//		@Summary		Get User Mitts
-//		@Tags			Mitts
-//	 @Param id path string true "ID of user"
-//		@Produce		json
-//		@Success		200	{object}	[]dto.MittResponse
-//		@Failure		400	{object}	dto.HTTPError
-//		@Failure 		404 {object} 	dto.HTTPError
-//		@Failure		500	{object}	dto.HTTPError
-//		@Router			/mitt/user/{id} [get]
+//	@Summary	Get User Mitts
+//	@Tags		Mitts
+//	@Param		id	path	string	true	"ID of user"
+//	@Produce	json
+//	@Success	200	{object}	[]dto.MittResponse
+//	@Failure	400	{object}	dto.HTTPError
+//	@Failure	404	{object}	dto.HTTPError
+//	@Failure	500	{object}	dto.HTTPError
+//	@Router		/mitt/user/{id} [get]
 func (h *MittHandler) getAllUserMitts(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -165,23 +165,23 @@ func (h *MittHandler) getAllUserMitts(c echo.Context) error {
 
 // updateMitt godoc
 //
-//		@Summary		Update Mitt
-//		@Tags			Mitts
-//	@Security		Bearer
-//	@Param			Authorization	header	string	true	"access token 'Bearer {token}'"
-//	 @Param id path string true "ID of mitt"
+//	@Summary	Update Mitt
+//	@Tags		Mitts
+//	@Security	Bearer
+//	@Param		Authorization	header	string	true	"access token 'Bearer {token}'"
+//	@Param		id				path	string	true	"ID of mitt"
 //
-// @Accept json
+//	@Accept		json
 //
-//	@Param			UpdateMittRequest	body	dto.MittUpdateRequest	true	"Update Mitt Request"
-//		@Produce		json
-//		@Success		200	{object}	dto.MittResponse
-//		@Failure		400	{object}	dto.HTTPError
-//		@Failure 		401 {object} 	dto.HTTPError
-//		@Failure 		403 {object} 	dto.HTTPError
-//		@Failure 		404 {object} 	dto.HTTPError
-//		@Failure		500	{object}	dto.HTTPError
-//		@Router			/mitt/{id} [put]
+//	@Param		UpdateMittRequest	body	dto.MittUpdateRequest	true	"Update Mitt Request"
+//	@Produce	json
+//	@Success	200	{object}	dto.MittResponse
+//	@Failure	400	{object}	dto.HTTPError
+//	@Failure	401	{object}	dto.HTTPError
+//	@Failure	403	{object}	dto.HTTPError
+//	@Failure	404	{object}	dto.HTTPError
+//	@Failure	500	{object}	dto.HTTPError
+//	@Router		/mitt/{id} [put]
 func (h *MittHandler) updateMitt(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -215,16 +215,16 @@ func (h *MittHandler) updateMitt(c echo.Context) error {
 
 // deleteMitt godoc
 //
-//	@Tags			Mitts
-//	@Summary		Delete mitt
-//	@Security		Bearer
-//	@Param			Authorization	header	string	true	"access token 'Bearer {token}'"
-//	@Produce		json
-//	@Success		204
-//	@Failure		400	{object}	dto.HTTPError
-//	@Failure		401	{object}	dto.HTTPError
-//	@Failure		500	{object}	dto.HTTPError
-//	@Router			/mitt/{id} [delete]
+//	@Tags		Mitts
+//	@Summary	Delete mitt
+//	@Security	Bearer
+//	@Param		Authorization	header	string	true	"access token 'Bearer {token}'"
+//	@Produce	json
+//	@Success	204
+//	@Failure	400	{object}	dto.HTTPError
+//	@Failure	401	{object}	dto.HTTPError
+//	@Failure	500	{object}	dto.HTTPError
+//	@Router		/mitt/{id} [delete]
 func (h *MittHandler) deleteMitt(c echo.Context) error {
 	ctx := c.Request().Context()
 

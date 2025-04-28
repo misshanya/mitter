@@ -19,6 +19,29 @@ definitions:
       message:
         type: string
     type: object
+  dto.MittCreateRequest:
+    properties:
+      content:
+        type: string
+    type: object
+  dto.MittResponse:
+    properties:
+      author:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.MittUpdateRequest:
+    properties:
+      content:
+        type: string
+    type: object
   dto.SignInRequest:
     properties:
       login:
@@ -193,6 +216,189 @@ paths:
       summary: Sign Up
       tags:
       - Auth
+  /mitt:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create Mitt Request
+        in: body
+        name: CreateMittRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MittCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MittResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+      security:
+      - Bearer: []
+      summary: Create Mitt
+      tags:
+      - Mitts
+  /mitt/{id}:
+    delete:
+      parameters:
+      - description: access token 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+      security:
+      - Bearer: []
+      summary: Delete mitt
+      tags:
+      - Mitts
+    get:
+      parameters:
+      - description: ID of mitt
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MittResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+      summary: Get Mitt
+      tags:
+      - Mitts
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID of mitt
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Mitt Request
+        in: body
+        name: UpdateMittRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MittUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MittResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+      security:
+      - Bearer: []
+      summary: Update Mitt
+      tags:
+      - Mitts
+  /mitt/user/{id}:
+    get:
+      parameters:
+      - description: ID of user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.MittResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+      summary: Get User Mitts
+      tags:
+      - Mitts
   /user:
     delete:
       description: Delete user account
