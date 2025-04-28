@@ -6,7 +6,16 @@ package storage
 
 import (
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type Mitt struct {
+	ID        uuid.UUID
+	Author    uuid.UUID
+	Content   string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
 
 type User struct {
 	ID       uuid.UUID
