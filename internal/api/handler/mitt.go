@@ -222,6 +222,7 @@ func (h *MittHandler) updateMitt(c echo.Context) error {
 //	@Success	204
 //	@Failure	400	{object}	dto.HTTPError
 //	@Failure	401	{object}	dto.HTTPError
+//	@Failure	403	{object}	dto.HTTPError
 //	@Failure	500	{object}	dto.HTTPError
 //	@Router		/mitt/{id} [delete]
 func (h *MittHandler) deleteMitt(c echo.Context) error {
