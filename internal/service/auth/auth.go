@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/misshanya/mitter/internal/models"
+	"github.com/misshanya/mitter/internal/service/utils"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"net/http"
@@ -64,14 +64,6 @@ func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *mod
 	return token.String(), nil
 }
 
-func isUniqueViolation(err error) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code == "23505"
-	}
-	return false
-}
-
 func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUID, *models.HTTPError) {
 	// Hash password and store it in user.HashedPassword
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -86,7 +78,7 @@ func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUI
 
 	id, err := s.ur.CreateUser(ctx, user)
 	if err != nil {
-		if isUniqueViolation(err) {
+		if utils.IsUniqueViolation(err) {
 			slog.Error("user already exists", slog.String("login", user.Login))
 			return uuid.Nil, &models.HTTPError{
 				Code:    http.StatusConflict,
