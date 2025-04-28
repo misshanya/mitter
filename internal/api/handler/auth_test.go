@@ -40,7 +40,7 @@ func (s *mockAuthService) ChangePassword(ctx context.Context, id uuid.UUID, chan
 // Mock auth middleware
 func mockRequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		c.Set("userID", "b096376a-5fa9-4130-907a-709c67008a65")
+		c.Set("userID", uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65"))
 		return next(c)
 	}
 }
