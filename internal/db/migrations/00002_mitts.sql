@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS mitts (
-    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     author UUID NOT NULL REFERENCES users(id),
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
