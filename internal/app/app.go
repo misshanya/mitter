@@ -53,7 +53,7 @@ func (a *App) Start(ctx context.Context) {
 	}
 
 	if err := db.Migrate(sql.OpenDB(stdlib.GetConnector(*conn.Config().ConnConfig))); err != nil {
-		slog.Error("failed to migrate database")
+		slog.Error("failed to migrate database", slog.Any("err", err))
 		os.Exit(1)
 	}
 
