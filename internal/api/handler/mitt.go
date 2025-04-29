@@ -170,6 +170,11 @@ func (h *MittHandler) getAllUserMitts(c echo.Context) error {
 		offset = int32(offset64)
 	}
 
+	// Check if limit or offset is negative
+	if limit < 0 || offset < 0 {
+		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: "Limit and offset can't be negative"})
+	}
+
 	mitts, httpErr := h.ms.GetAllUserMitts(ctx, userIDToGet, limit, offset)
 	if httpErr != nil {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
