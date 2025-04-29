@@ -23,9 +23,9 @@ type AuthHandler struct {
 	reqAuthMiddleware echo.MiddlewareFunc
 }
 
-func NewAuthHandler(ar authService, reqAuthMdl echo.MiddlewareFunc) *AuthHandler {
+func NewAuthHandler(as authService, reqAuthMdl echo.MiddlewareFunc) *AuthHandler {
 	return &AuthHandler{
-		as:                ar,
+		as:                as,
 		validate:          validator.New(),
 		reqAuthMiddleware: reqAuthMdl,
 	}
