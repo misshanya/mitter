@@ -8,13 +8,14 @@ import (
 	"github.com/misshanya/mitter/internal/api/dto"
 	"github.com/misshanya/mitter/internal/models"
 	"net/http"
+	"strconv"
 )
 
 type mittService interface {
 	CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models.MittCreate) (*models.Mitt, *models.HTTPError)
 
 	GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, *models.HTTPError)
-	GetAllUserMitts(ctx context.Context, userID uuid.UUID) ([]*models.Mitt, *models.HTTPError)
+	GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.Mitt, *models.HTTPError)
 
 	UpdateMitt(ctx context.Context, userID uuid.UUID, mittID uuid.UUID, mitt *models.MittUpdate) (*models.Mitt, *models.HTTPError)
 
@@ -129,7 +130,9 @@ func (h *MittHandler) getMitt(c echo.Context) error {
 //
 //	@Summary	Get User Mitts
 //	@Tags		Mitts
-//	@Param		id	path	string	true	"ID of user"
+//	@Param		id		path	string	true	"ID of user"
+//	@Param		offset	query	int		false	"Offset"
+//	@Param		limit	query	int		false	"Limit"
 //	@Produce	json
 //	@Success	200	{object}	[]dto.MittResponse
 //	@Failure	400	{object}	dto.HTTPError
@@ -145,7 +148,29 @@ func (h *MittHandler) getAllUserMitts(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
 	}
 
-	mitts, httpErr := h.ms.GetAllUserMitts(ctx, userIDToGet)
+	var limit int32
+	limitStr := c.QueryParam("limit")
+	if limitStr == "" {
+		limit = 30
+	} else {
+		limit64, err := strconv.Atoi(limitStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+		}
+		limit = int32(limit64)
+	}
+
+	var offset int32
+	offsetStr := c.QueryParam("offset")
+	if offsetStr != "" {
+		offset64, err := strconv.Atoi(offsetStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+		}
+		offset = int32(offset64)
+	}
+
+	mitts, httpErr := h.ms.GetAllUserMitts(ctx, userIDToGet, limit, offset)
 	if httpErr != nil {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}

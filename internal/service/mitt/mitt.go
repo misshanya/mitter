@@ -48,8 +48,8 @@ func (s *Service) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, *mod
 	return mitt, nil
 }
 
-func (s *Service) GetAllUserMitts(ctx context.Context, userID uuid.UUID) ([]*models.Mitt, *models.HTTPError) {
-	mitts, err := s.mr.GetAllUserMitts(ctx, userID)
+func (s *Service) GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.Mitt, *models.HTTPError) {
+	mitts, err := s.mr.GetAllUserMitts(ctx, userID, limit, offset)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, &models.HTTPError{

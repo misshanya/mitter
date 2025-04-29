@@ -46,8 +46,12 @@ func (r *MittRepository) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mit
 	return mittDBToMitt(mittDB), nil
 }
 
-func (r *MittRepository) GetAllUserMitts(ctx context.Context, userID uuid.UUID) ([]*models.Mitt, error) {
-	mittsDB, err := r.queries.GetAllUserMitts(ctx, userID)
+func (r *MittRepository) GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.Mitt, error) {
+	mittsDB, err := r.queries.GetAllUserMitts(ctx, storage.GetAllUserMittsParams{
+		Author: userID,
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return nil, err
 	}

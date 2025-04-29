@@ -50,11 +50,19 @@ func (q *Queries) DeleteMitt(ctx context.Context, id uuid.UUID) error {
 
 const getAllUserMitts = `-- name: GetAllUserMitts :many
 SELECT id, author, content, created_at, updated_at FROM mitts
-WHERE author = $1
+WHERE author = $3
+ORDER BY created_at
+LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) GetAllUserMitts(ctx context.Context, author uuid.UUID) ([]Mitt, error) {
-	rows, err := q.db.Query(ctx, getAllUserMitts, author)
+type GetAllUserMittsParams struct {
+	Limit  int32
+	Offset int32
+	Author uuid.UUID
+}
+
+func (q *Queries) GetAllUserMitts(ctx context.Context, arg GetAllUserMittsParams) ([]Mitt, error) {
+	rows, err := q.db.Query(ctx, getAllUserMitts, arg.Limit, arg.Offset, arg.Author)
 	if err != nil {
 		return nil, err
 	}

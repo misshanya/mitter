@@ -9,7 +9,7 @@ type MittRepository interface {
 	CreateMitt(ctx context.Context, userID uuid.UUID, mitt *MittCreate) (*Mitt, error)
 
 	GetMitt(ctx context.Context, id uuid.UUID) (*Mitt, error)
-	GetAllUserMitts(ctx context.Context, userID uuid.UUID) ([]*Mitt, error)
+	GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*Mitt, error)
 
 	UpdateMitt(ctx context.Context, mittID uuid.UUID, mitt *MittUpdate) (*Mitt, error)
 
