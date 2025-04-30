@@ -122,6 +122,7 @@ func (h *MittHandler) getMitt(c echo.Context) error {
 		Content:   mitt.Content,
 		CreatedAt: mitt.CreatedAt,
 		UpdatedAt: mitt.UpdatedAt,
+		Likes:     mitt.Likes,
 	}
 	return c.JSON(http.StatusOK, resp)
 }
@@ -188,6 +189,7 @@ func (h *MittHandler) getAllUserMitts(c echo.Context) error {
 			Content:   m.Content,
 			CreatedAt: m.CreatedAt,
 			UpdatedAt: m.UpdatedAt,
+			Likes:     m.Likes,
 		}
 	}
 	return c.JSON(http.StatusOK, resp)
