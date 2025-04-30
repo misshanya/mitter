@@ -14,4 +14,11 @@ type MittRepository interface {
 	UpdateMitt(ctx context.Context, mittID uuid.UUID, mitt *MittUpdate) (*Mitt, error)
 
 	DeleteMitt(ctx context.Context, mittID uuid.UUID) error
+
+	// Likes
+
+	LikeMitt(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error
+	IsMittLikedByUser(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error
+	DeleteMittLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error
+	GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (int64, error)
 }

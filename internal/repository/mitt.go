@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/misshanya/mitter/internal/db/sqlc/storage"
 	"github.com/misshanya/mitter/internal/models"
 )
@@ -78,4 +80,38 @@ func (r *MittRepository) UpdateMitt(ctx context.Context, mittID uuid.UUID, mitt 
 
 func (r *MittRepository) DeleteMitt(ctx context.Context, mittID uuid.UUID) error {
 	return r.queries.DeleteMitt(ctx, mittID)
+}
+
+// Likes
+
+func (r *MittRepository) LikeMitt(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error {
+	return r.queries.LikeMitt(ctx, storage.LikeMittParams{
+		UserID: userID,
+		MittID: mittID,
+	})
+}
+
+func (r *MittRepository) IsMittLikedByUser(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, error) {
+	_, err := r.queries.IsMittLikedByUser(ctx, storage.IsMittLikedByUserParams{
+		UserID: userID,
+		MittID: mittID,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *MittRepository) DeleteMittLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error {
+	return r.queries.DeleteMittLike(ctx, storage.DeleteMittLikeParams{
+		UserID: userID,
+		MittID: mittID,
+	})
+}
+
+func (r *MittRepository) GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (int64, error) {
+	return r.queries.GetMittLikesCount(ctx, mittID)
 }
