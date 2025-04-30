@@ -48,6 +48,21 @@ func (q *Queries) DeleteMitt(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteMittLike = `-- name: DeleteMittLike :exec
+DELETE FROM mitts_likes
+WHERE user_id = $1 AND mitt_id = $2
+`
+
+type DeleteMittLikeParams struct {
+	UserID uuid.UUID
+	MittID uuid.UUID
+}
+
+func (q *Queries) DeleteMittLike(ctx context.Context, arg DeleteMittLikeParams) error {
+	_, err := q.db.Exec(ctx, deleteMittLike, arg.UserID, arg.MittID)
+	return err
+}
+
 const getAllUserMitts = `-- name: GetAllUserMitts :many
 SELECT id, author, content, created_at, updated_at FROM mitts
 WHERE author = $3
@@ -104,6 +119,53 @@ func (q *Queries) GetMitt(ctx context.Context, id uuid.UUID) (Mitt, error) {
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getMittLikesCount = `-- name: GetMittLikesCount :one
+SELECT COUNT(*) FROM mitts_likes
+WHERE mitt_id = $1
+`
+
+func (q *Queries) GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, getMittLikesCount, mittID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const isMittLikedByUser = `-- name: IsMittLikedByUser :one
+SELECT 1 FROM mitts_likes
+WHERE user_id = $1 AND mitt_id = $2
+`
+
+type IsMittLikedByUserParams struct {
+	UserID uuid.UUID
+	MittID uuid.UUID
+}
+
+func (q *Queries) IsMittLikedByUser(ctx context.Context, arg IsMittLikedByUserParams) (int32, error) {
+	row := q.db.QueryRow(ctx, isMittLikedByUser, arg.UserID, arg.MittID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const likeMitt = `-- name: LikeMitt :exec
+INSERT INTO mitts_likes (
+    user_id, mitt_id
+) VALUES (
+    $1, $2
+)
+`
+
+type LikeMittParams struct {
+	UserID uuid.UUID
+	MittID uuid.UUID
+}
+
+func (q *Queries) LikeMitt(ctx context.Context, arg LikeMittParams) error {
+	_, err := q.db.Exec(ctx, likeMitt, arg.UserID, arg.MittID)
+	return err
 }
 
 const updateMitt = `-- name: UpdateMitt :one
