@@ -24,6 +24,11 @@ definitions:
       content:
         type: string
     type: object
+  dto.MittLikeResponse:
+    properties:
+      like:
+        type: boolean
+    type: object
   dto.MittResponse:
     properties:
       author:
@@ -34,6 +39,8 @@ definitions:
         type: string
       id:
         type: string
+      likes:
+        type: integer
       updated_at:
         type: string
     type: object
@@ -374,6 +381,43 @@ paths:
       security:
       - Bearer: []
       summary: Update Mitt
+      tags:
+      - Mitts
+  /mitt/{id}/like:
+    post:
+      parameters:
+      - description: access token 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID of mitt
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MittLikeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+      security:
+      - Bearer: []
+      summary: Like Mitt
       tags:
       - Mitts
   /mitt/user/{id}:

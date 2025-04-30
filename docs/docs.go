@@ -492,6 +492,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/mitt/{id}/like": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mitts"
+                ],
+                "summary": "Like Mitt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "access token 'Bearer {token}'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of mitt",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MittLikeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "get": {
                 "security": [
@@ -690,6 +748,14 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.MittLikeResponse": {
+            "type": "object",
+            "properties": {
+                "like": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.MittResponse": {
             "type": "object",
             "properties": {
@@ -704,6 +770,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "likes": {
+                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"

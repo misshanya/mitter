@@ -21,3 +21,7 @@ type MittResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Likes     int64     `json:"likes"`
 }
+
+type MittLikeResponse struct {
+	Like bool `json:"like"`
+}

@@ -20,6 +20,10 @@ type mittService interface {
 	UpdateMitt(ctx context.Context, userID uuid.UUID, mittID uuid.UUID, mitt *models.MittUpdate) (*models.Mitt, *models.HTTPError)
 
 	DeleteMitt(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) *models.HTTPError
+
+	// Likes
+
+	SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, *models.HTTPError)
 }
 
 type MittHandler struct {
@@ -42,6 +46,8 @@ func (h *MittHandler) Routes(group *echo.Group) {
 	group.GET("/user/:id", h.getAllUserMitts)
 	group.PUT("/:id", h.updateMitt, h.reqAuthMiddleware)
 	group.DELETE("/:id", h.deleteMitt, h.reqAuthMiddleware)
+
+	group.POST("/:id/like", h.likeMitt, h.reqAuthMiddleware)
 }
 
 // createMitt godoc
@@ -281,4 +287,41 @@ func (h *MittHandler) deleteMitt(c echo.Context) error {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 	return c.NoContent(http.StatusNoContent)
+}
+
+// Likes
+
+// likeMitt godoc
+//
+//	@Summary	Like Mitt
+//	@Tags		Mitts
+//	@Security	Bearer
+//	@Param		Authorization	header	string	true	"access token 'Bearer {token}'"
+//	@Param		id				path	string	true	"ID of mitt"
+//	@Produce	json
+//	@Success	200	{object}	dto.MittLikeResponse
+//	@Failure	400	{object}	dto.HTTPError
+//	@Failure	401	{object}	dto.HTTPError
+//	@Failure	500	{object}	dto.HTTPError
+//	@Router		/mitt/{id}/like [post]
+func (h *MittHandler) likeMitt(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	userID := c.Get("userID").(uuid.UUID)
+
+	mittIDStr := c.Param("id")
+	mittID, err := uuid.Parse(mittIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+	}
+
+	isLiked, httpErr := h.ms.SwitchLike(ctx, userID, mittID)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
+	}
+
+	resp := dto.MittLikeResponse{
+		Like: isLiked,
+	}
+	return c.JSON(http.StatusOK, resp)
 }
