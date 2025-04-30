@@ -17,6 +17,13 @@ type Mitt struct {
 	UpdatedAt pgtype.Timestamp
 }
 
+type MittsLike struct {
+	ID      uuid.UUID
+	UserID  uuid.UUID
+	MittID  uuid.UUID
+	LikedAt pgtype.Timestamp
+}
+
 type User struct {
 	ID       uuid.UUID
 	Login    string
