@@ -15,6 +15,7 @@ type Mitt struct {
 	Content   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Likes     int64
 }
 
 type MittUpdate struct {
