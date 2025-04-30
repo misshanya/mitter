@@ -240,7 +240,16 @@ func (h *MittHandler) updateMitt(c echo.Context) error {
 	if httpErr != nil {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
-	return c.JSON(http.StatusOK, newMitt)
+
+	resp := dto.MittResponse{
+		ID:        newMitt.ID,
+		Author:    newMitt.Author,
+		Content:   newMitt.Content,
+		CreatedAt: newMitt.CreatedAt,
+		UpdatedAt: newMitt.UpdatedAt,
+		Likes:     newMitt.Likes,
+	}
+	return c.JSON(http.StatusOK, resp)
 }
 
 // deleteMitt godoc
