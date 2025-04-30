@@ -30,6 +30,19 @@ func (s *Service) CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models
 	return newMitt, nil
 }
 
+func (s *Service) setLikesCount(ctx context.Context, mitt *models.Mitt) error {
+	likesCount, err := s.mr.GetMittLikesCount(ctx, mitt.ID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil
+		}
+		slog.Error("error getting likes count", slog.Any("err", err))
+		return err
+	}
+	mitt.Likes = likesCount
+	return nil
+}
+
 func (s *Service) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, *models.HTTPError) {
 	mitt, err := s.mr.GetMitt(ctx, id)
 	if err != nil {
@@ -45,6 +58,14 @@ func (s *Service) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, *mod
 			Message: "Internal server error",
 		}
 	}
+
+	if err := s.setLikesCount(ctx, mitt); err != nil {
+		return nil, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+
 	return mitt, nil
 }
 
@@ -63,6 +84,16 @@ func (s *Service) GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, 
 			Message: "Internal server error",
 		}
 	}
+
+	for _, mitt := range mitts {
+		if err := s.setLikesCount(ctx, mitt); err != nil {
+			return nil, &models.HTTPError{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal server error",
+			}
+		}
+	}
+
 	return mitts, nil
 }
 
@@ -120,4 +151,34 @@ func (s *Service) DeleteMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 		}
 	}
 	return nil
+}
+
+// Likes
+
+func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, *models.HTTPError) {
+	isAlreadyLiked, err := s.mr.IsMittLikedByUser(ctx, userID, mittID)
+	if err != nil {
+		return false, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+
+	if !isAlreadyLiked {
+		if err := s.mr.LikeMitt(ctx, userID, mittID); err != nil {
+			return false, &models.HTTPError{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal server error",
+			}
+		}
+		return true, nil
+	}
+
+	if err := s.mr.DeleteMittLike(ctx, userID, mittID); err != nil {
+		return false, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+	return false, nil
 }
