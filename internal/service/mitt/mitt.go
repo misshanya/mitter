@@ -125,6 +125,14 @@ func (s *Service) UpdateMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 			Message: "Internal server error",
 		}
 	}
+
+	if err := s.setLikesCount(ctx, newMitt); err != nil {
+		return nil, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+
 	return newMitt, nil
 }
 
