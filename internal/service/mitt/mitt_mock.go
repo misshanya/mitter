@@ -79,8 +79,8 @@ func (m mockMittRepo) IsMittLikedByUser(ctx context.Context, userID uuid.UUID, m
 	_ = userID
 	_ = mittID
 
-	// Let's assume that's true.
-	return true, nil
+	// Let's assume that if mock model has >=1 like, mitt is liked by user, if less, no
+	return mockMittModel.Likes >= 1, nil
 }
 
 func (m mockMittRepo) DeleteMittLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error {
