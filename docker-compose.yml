@@ -32,6 +32,19 @@ services:
     networks:
       - mitter
 
+  prometheus:
+    image: prom/prometheus
+    container_name: mitter-prometheus
+    ports:
+      - "9090:9090"
+    command: '--config.file=/etc/prometheus/prometheus.yml'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    networks:
+      - mitter
+
 networks:
   mitter:
     driver: bridge
@@ -39,3 +52,4 @@ networks:
 volumes:
   pg_data:
   redis_data:
+  prometheus_data:
