@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/misshanya/mitter/docs"
@@ -66,6 +67,10 @@ func (a *App) Start(ctx context.Context) {
 
 	// Swagger
 	a.e.GET("/swagger/*", echoSwagger.WrapHandler)
+
+	// Prometheus
+	a.e.Use(echoprometheus.NewMiddleware("mitter"))
+	a.e.GET("/metrics", echoprometheus.NewHandler())
 
 	apiGroup := a.e.Group("/api")
 	v1Group := apiGroup.Group("/v1")
