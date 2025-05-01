@@ -15,6 +15,8 @@ services:
     container_name: mitter-db
     env_file:
       - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - mitter
@@ -24,6 +26,8 @@ services:
     container_name: mitter-redis
     env_file:
       - .env
+    volumes:
+      - redis_data:/data
     restart: unless-stopped
     networks:
       - mitter
@@ -31,3 +35,7 @@ services:
 networks:
   mitter:
     driver: bridge
+
+volumes:
+  pg_data:
+  redis_data:
