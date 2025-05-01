@@ -2,7 +2,7 @@
 Mitter is my Twitter-inspired “social network”. 
 In early development stage
 
-## Functional
+## Functionality
 
 ### Users
 - Sign-Up
@@ -24,7 +24,7 @@ In early development stage
 ### Users
 - [ ] Following
 - [ ] Friends
-- [ ] Users' ratings (one user can rate another user only once (rate's editing allowed))
+- [ ] Users' ratings (one user can rate another user only once (rate editing allowed))
 
 ### Mitts
 - [ ] Mitts' comments
