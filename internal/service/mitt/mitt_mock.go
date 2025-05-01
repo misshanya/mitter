@@ -9,12 +9,14 @@ import (
 
 var mockMittModel = &models.Mitt{
 	ID:        uuid.New(),
-	Author:    uuid.New(),
+	Author:    mockUserID,
 	Content:   "hello world",
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),
 	Likes:     0,
 }
+
+var mockUserID = uuid.New()
 
 // Mock mitt repo
 type mockMittRepo struct{}
