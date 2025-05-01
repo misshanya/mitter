@@ -27,6 +27,14 @@ Swagger docs are located in `docs/swagger.json` or `docs/swagger.yaml`
 
 You can use interactive swagger on `/swagger/index.html` (if my server is running on localhost:8080, the swagger url will be `http://localhost:8080/swagger/index.html`)
 
+## Stack
+
+- Go
+- PostgreSQL as main DB
+- Redis (right now just for auth tokens)
+- Prometheus
+- Grafana
+
 ## How to run
 
 First, clone repo and cd into it
@@ -36,14 +44,7 @@ git clone https://github.com/misshanya/mitter
 cd mitter
 ```
 
-### Docker compose services
-
-- Backend (this app, API)
-- PostgreSQL (main DB)
-- Redis (right now just for tokens)
-- Prometheus
-- Grafana
-
+### Docker compose
 ```bash
 docker compose up -d
 ```
