@@ -27,16 +27,6 @@ Swagger docs are located in `docs/swagger.json` or `docs/swagger.yaml`
 
 You can use interactive swagger on `/swagger/index.html` (if my server is running on localhost:8080, the swagger url will be `http://localhost:8080/swagger/index.html`)
 
-## My plans
-
-### Users
-- [ ] Following
-- [ ] Friends
-- [ ] Users' ratings (one user can rate another user only once (rate editing allowed))
-
-### Mitts
-- [ ] Mitts' comments
-
 ## How to run
 
 First, clone repo and cd into it
@@ -51,7 +41,7 @@ cd mitter
 - Backend (this app, API)
 - PostgreSQL (main DB)
 - Redis (right now just for tokens)
-- Prometheus 
+- Prometheus
 - Grafana
 
 ```bash
@@ -62,3 +52,14 @@ docker compose up -d
 ```bash
 go build -o server .
 ```
+
+## My plans
+
+### Users
+- [ ] Following
+- [ ] Friends
+- [ ] Users' ratings (one user can rate another user only once (rate editing allowed))
+
+### Mitts
+- [ ] Mitts' comments
+
