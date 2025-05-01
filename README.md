@@ -21,6 +21,12 @@ In early development stage
 - Like mitt
 - Delete mitt
 
+## API Documentation
+
+Swagger docs are located in `docs/swagger.json` or `docs/swagger.yaml`
+
+You can use interactive swagger on `/swagger/index.html` (if my server is running on localhost:8080, the swagger url will be `http://localhost:8080/swagger/index.html`)
+
 ## My plans
 
 ### Users
