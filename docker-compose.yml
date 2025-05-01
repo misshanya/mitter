@@ -51,6 +51,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      - ./config/grafana.yml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
       - grafana_data:/var/lib/grafana
     restart: unless-stopped
     networks:
