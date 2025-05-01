@@ -1,4 +1,6 @@
 # Mitter
+[![wakatime](https://wakatime.com/badge/user/6c2e820c-673b-4690-9190-7b15c368b37f/project/a0a1543a-1b5c-4206-814b-c661a923cec8.svg?style=for-the-badge)](#)
+
 Mitter is my Twitter-inspired “social network”. 
 In early development stage
 
