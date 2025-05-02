@@ -44,6 +44,12 @@ git clone https://github.com/misshanya/mitter
 cd mitter
 ```
 
+You also need to create .env or pass env variables directly
+
+```bash
+mv .env.example .env
+```
+
 ### Docker compose
 ```bash
 docker compose up -d
