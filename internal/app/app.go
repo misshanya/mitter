@@ -76,6 +76,7 @@ func (a *App) Start(ctx context.Context) {
 
 	// Custom metrics
 	userMetrics := metrics.NewUserMetrics()
+	mittMetrics := metrics.NewMittMetrics()
 
 	apiGroup := a.e.Group("/api")
 	v1Group := apiGroup.Group("/v1")
@@ -88,7 +89,7 @@ func (a *App) Start(ctx context.Context) {
 	// Services
 	userService := user.NewUserService(userRepo, userMetrics)
 	authService := auth.NewAuthService(userRepo, authRepo, userMetrics)
-	mittService := mitt.NewService(mittRepo)
+	mittService := mitt.NewService(mittRepo, mittMetrics)
 
 	// Middlewares
 	authMiddleware := myMiddleware.NewAuthMiddleware(authRepo)

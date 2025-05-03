@@ -2,9 +2,10 @@ package mitt
 
 import (
 	"context"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/misshanya/mitter/internal/models"
-	"time"
 )
 
 var mockMittModel = &models.Mitt{
@@ -99,4 +100,26 @@ func (m mockMittRepo) GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (
 	_ = mittID
 
 	return mockMittModel.Likes, nil
+}
+
+// Mock metrics
+type mockMittMetrics struct {
+	FakeTotalMitts int
+	FakeTotalLikes int
+}
+
+func (m *mockMittMetrics) AddMitt() {
+	m.FakeTotalMitts++
+}
+
+func (m *mockMittMetrics) DeleteMitt() {
+	m.FakeTotalMitts--
+}
+
+func (m *mockMittMetrics) AddLike() {
+	m.FakeTotalLikes++
+}
+
+func (m *mockMittMetrics) DeleteLike() {
+	m.FakeTotalLikes--
 }

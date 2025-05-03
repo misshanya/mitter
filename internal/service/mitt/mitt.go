@@ -3,19 +3,21 @@ package mitt
 import (
 	"context"
 	"errors"
+	"log/slog"
+	"net/http"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/misshanya/mitter/internal/models"
-	"log/slog"
-	"net/http"
 )
 
 type Service struct {
 	mr models.MittRepository
+	mm models.MittMetrics
 }
 
-func NewService(mr models.MittRepository) *Service {
-	return &Service{mr: mr}
+func NewService(mr models.MittRepository, mm models.MittMetrics) *Service {
+	return &Service{mr: mr, mm: mm}
 }
 
 func (s *Service) CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models.MittCreate) (*models.Mitt, *models.HTTPError) {
@@ -27,6 +29,10 @@ func (s *Service) CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models
 			Message: "Internal server error",
 		}
 	}
+
+	// Update metrics
+	go s.mm.AddMitt()
+
 	return newMitt, nil
 }
 
@@ -158,6 +164,10 @@ func (s *Service) DeleteMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 			Message: "Internal server error",
 		}
 	}
+
+	// Update metrics
+	go s.mm.DeleteMitt()
+
 	return nil
 }
 
@@ -179,6 +189,10 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 				Message: "Internal server error",
 			}
 		}
+
+		// Add like in metrics
+		go s.mm.AddLike()
+
 		return true, nil
 	}
 
@@ -188,5 +202,9 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 			Message: "Internal server error",
 		}
 	}
+
+	// Delete like in metrics
+	go s.mm.DeleteLike()
+
 	return false, nil
 }
