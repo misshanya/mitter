@@ -3,6 +3,9 @@ package app
 import (
 	"context"
 	"database/sql"
+	"log/slog"
+	"os"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo-contrib/echoprometheus"
@@ -13,15 +16,14 @@ import (
 	"github.com/misshanya/mitter/internal/config"
 	"github.com/misshanya/mitter/internal/db"
 	"github.com/misshanya/mitter/internal/db/sqlc/storage"
+	"github.com/misshanya/mitter/internal/metrics"
 	myMiddleware "github.com/misshanya/mitter/internal/middleware"
 	"github.com/misshanya/mitter/internal/repository"
 	"github.com/misshanya/mitter/internal/service/auth"
 	"github.com/misshanya/mitter/internal/service/mitt"
 	"github.com/misshanya/mitter/internal/service/user"
 	"github.com/redis/go-redis/v9"
-	"github.com/swaggo/echo-swagger"
-	"log/slog"
-	"os"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type App struct {
@@ -72,6 +74,9 @@ func (a *App) Start(ctx context.Context) {
 	a.e.Use(echoprometheus.NewMiddleware("mitter"))
 	a.e.GET("/metrics", echoprometheus.NewHandler())
 
+	// Custom metrics
+	userMetrics := metrics.NewUserMetrics()
+
 	apiGroup := a.e.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 
@@ -81,8 +86,8 @@ func (a *App) Start(ctx context.Context) {
 	mittRepo := repository.NewMittRepository(queries)
 
 	// Services
-	userService := user.NewUserService(userRepo)
-	authService := auth.NewAuthService(userRepo, authRepo)
+	userService := user.NewUserService(userRepo, userMetrics)
+	authService := auth.NewAuthService(userRepo, authRepo, userMetrics)
 	mittService := mitt.NewService(mittRepo)
 
 	// Middlewares

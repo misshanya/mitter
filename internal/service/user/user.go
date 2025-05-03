@@ -11,10 +11,14 @@ import (
 
 type Service struct {
 	ur models.UserRepository
+	um models.UserMetrics
 }
 
-func NewUserService(repo models.UserRepository) *Service {
-	return &Service{ur: repo}
+func NewUserService(repo models.UserRepository, metrics models.UserMetrics) *Service {
+	return &Service{
+		ur: repo,
+		um: metrics,
+	}
 }
 
 func (s *Service) GetUser(ctx context.Context, id uuid.UUID) (*models.User, *models.HTTPError) {
@@ -41,6 +45,9 @@ func (s *Service) DeleteUser(ctx context.Context, id uuid.UUID) *models.HTTPErro
 			Message: "Internal Server Error",
 		}
 	}
+
+	// Update metrics
+	go s.um.DeleteUser()
 
 	return nil
 }

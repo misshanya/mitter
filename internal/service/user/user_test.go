@@ -9,7 +9,7 @@ import (
 
 // Tests
 func TestUserService_GetUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
 	ctx := context.Background()
 
 	user, err := service.GetUser(ctx, testUserID)
@@ -21,7 +21,7 @@ func TestUserService_GetUser(t *testing.T) {
 }
 
 func TestUserService_DeleteUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
 	ctx := context.Background()
 
 	err := service.DeleteUser(ctx, testUserID)
@@ -31,7 +31,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 }
 
 func TestUserService_UpdateUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
 	ctx := context.Background()
 
 	newName := "new name"

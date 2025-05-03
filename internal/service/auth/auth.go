@@ -3,22 +3,24 @@ package auth
 import (
 	"context"
 	"errors"
+	"log/slog"
+	"net/http"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/misshanya/mitter/internal/models"
 	"github.com/misshanya/mitter/internal/service/utils"
 	"golang.org/x/crypto/bcrypt"
-	"log/slog"
-	"net/http"
 )
 
 type Service struct {
 	ur models.UserRepository
 	ar models.AuthRepository
+	um models.UserMetrics
 }
 
-func NewAuthService(ur models.UserRepository, ar models.AuthRepository) *Service {
-	return &Service{ur: ur, ar: ar}
+func NewAuthService(ur models.UserRepository, ar models.AuthRepository, um models.UserMetrics) *Service {
+	return &Service{ur: ur, ar: ar, um: um}
 }
 
 func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *models.HTTPError) {
@@ -91,6 +93,10 @@ func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUI
 			Message: "Internal server error",
 		}
 	}
+
+	// Update metrics
+	go s.um.AddUser()
+
 	return id, nil
 }
 

@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/misshanya/mitter/internal/models"
 )
@@ -68,4 +69,17 @@ func (r *mockUserRepo) ChangePassword(ctx context.Context, id uuid.UUID, newHash
 	_ = newHashedPassword
 
 	return nil
+}
+
+// Mock user metrics
+type mockUserMetrics struct {
+	FakeUsersCount int
+}
+
+func (m *mockUserMetrics) AddUser() {
+	m.FakeUsersCount++
+}
+
+func (m *mockUserMetrics) DeleteUser() {
+	m.FakeUsersCount--
 }

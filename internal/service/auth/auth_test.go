@@ -2,14 +2,15 @@ package auth
 
 import (
 	"context"
+	"testing"
+
 	"github.com/misshanya/mitter/internal/models"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 // Tests
 func TestAuthService_SignIn(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{})
 
 	ctx := context.Background()
 
@@ -28,7 +29,7 @@ func TestAuthService_SignIn(t *testing.T) {
 }
 
 func TestAuthService_SignUp(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{})
 
 	ctx := context.Background()
 
@@ -48,7 +49,7 @@ func TestAuthService_SignUp(t *testing.T) {
 }
 
 func TestAuthService_ChangePassword(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{})
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{})
 
 	ctx := context.Background()
 
