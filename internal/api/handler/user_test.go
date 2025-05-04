@@ -80,3 +80,23 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, rec.Code)
 	}
 }
+
+func TestUserHandler_UpdateUser(t *testing.T) {
+	e := echo.New()
+
+	handler := NewUserHandler(&mockUserService{})
+
+	g := e.Group("/api/v1/user")
+	handler.Routes(g)
+
+	// Create request
+	req := httptest.NewRequest(http.MethodPatch, "/api/v1/user", nil)
+	rec := httptest.NewRecorder()
+
+	ctx := e.NewContext(req, rec)
+	ctx.Set("userID", uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65"))
+
+	if assert.NoError(t, handler.updateUser(ctx)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+	}
+}
