@@ -1,5 +1,3 @@
-apiVersion: 1
-
 datasources:
   - name: Prometheus (Main)
     type: prometheus

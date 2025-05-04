@@ -51,8 +51,11 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./config/grafana.yml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
       - grafana_data:/var/lib/grafana
+    environment:
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: "/var/lib/grafana/dashboards/mitter.json"
     restart: unless-stopped
     networks:
       - mitter
