@@ -30,12 +30,12 @@ func NewUserHandler(service userService) *UserHandler {
 }
 
 func (h *UserHandler) Routes(group *echo.Group) {
-	group.GET("", h.GetMe)
-	group.DELETE("", h.DeleteUser)
-	group.PATCH("", h.UpdateUser)
+	group.GET("", h.getMe)
+	group.DELETE("", h.deleteUser)
+	group.PATCH("", h.updateUser)
 }
 
-// GetMe godoc
+// getMe godoc
 //
 //	@Tags			User
 //	@Summary		Get Me
@@ -49,7 +49,7 @@ func (h *UserHandler) Routes(group *echo.Group) {
 //	@Failure		404	{object}	dto.HTTPError
 //	@Failure		500	{object}	dto.HTTPError
 //	@Router			/user [get]
-func (h *UserHandler) GetMe(c echo.Context) error {
+func (h *UserHandler) getMe(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	userID := c.Get("userID").(uuid.UUID)
@@ -67,7 +67,7 @@ func (h *UserHandler) GetMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-// DeleteUser godoc
+// deleteUser godoc
 //
 //	@Tags			User
 //	@Summary		Delete account
@@ -80,7 +80,7 @@ func (h *UserHandler) GetMe(c echo.Context) error {
 //	@Failure		401	{object}	dto.HTTPError
 //	@Failure		500	{object}	dto.HTTPError
 //	@Router			/user [delete]
-func (h *UserHandler) DeleteUser(c echo.Context) error {
+func (h *UserHandler) deleteUser(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	userID := c.Get("userID").(uuid.UUID)
@@ -93,7 +93,7 @@ func (h *UserHandler) DeleteUser(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-// UpdateUser godoc
+// updateUser godoc
 //
 //	@Tags			User
 //	@Summary		Update user
@@ -107,7 +107,7 @@ func (h *UserHandler) DeleteUser(c echo.Context) error {
 //	@Failure		401	{object}	dto.HTTPError
 //	@Failure		500	{object}	dto.HTTPError
 //	@Router			/user [patch]
-func (h *UserHandler) UpdateUser(c echo.Context) error {
+func (h *UserHandler) updateUser(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	userID := c.Get("userID").(uuid.UUID)

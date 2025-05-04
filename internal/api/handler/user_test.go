@@ -54,7 +54,7 @@ func TestUserHandler_GetMe(t *testing.T) {
 	ctx := e.NewContext(req, rec)
 	ctx.Set("userID", uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65"))
 
-	if assert.NoError(t, handler.GetMe(ctx)) {
+	if assert.NoError(t, handler.getMe(ctx)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Contains(t, rec.Body.String(), "testuser")
 		assert.Contains(t, rec.Body.String(), "Test User")
@@ -76,7 +76,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 	ctx := e.NewContext(req, rec)
 	ctx.Set("userID", uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65"))
 
-	if assert.NoError(t, handler.DeleteUser(ctx)) {
+	if assert.NoError(t, handler.deleteUser(ctx)) {
 		assert.Equal(t, http.StatusNoContent, rec.Code)
 	}
 }
