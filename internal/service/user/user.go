@@ -63,3 +63,77 @@ func (s *Service) UpdateUser(ctx context.Context, id uuid.UUID, user *models.Use
 
 	return nil
 }
+
+func (s *Service) FollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError {
+	err := s.ur.FollowUser(ctx, followerID, followeeID)
+	if err != nil {
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+	}
+	return nil
+}
+
+func (s *Service) UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError {
+	err := s.ur.UnfollowUser(ctx, followerID, followeeID)
+	if err != nil {
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+	}
+	return nil
+}
+
+func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]*models.User, *models.HTTPError) {
+	// Get user follows (ids)
+	usersIDs, err := s.ur.GetUserFollows(ctx, followerID)
+	if err != nil {
+		return nil, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+	}
+
+	// Get users models from ids
+	users := make([]*models.User, len(usersIDs))
+	for i, id := range usersIDs {
+		user, err := s.ur.GetUserByID(ctx, id)
+		if err != nil {
+			return nil, &models.HTTPError{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal Server Error",
+			}
+		}
+		users[i] = user
+	}
+
+	return users, nil
+}
+
+func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]*models.User, *models.HTTPError) {
+	// Get user followers (ids)
+	usersIDs, err := s.ur.GetUserFollowers(ctx, followeeID)
+	if err != nil {
+		return nil, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+	}
+
+	// Get users models from ids
+	users := make([]*models.User, len(usersIDs))
+	for i, id := range usersIDs {
+		user, err := s.ur.GetUserByID(ctx, id)
+		if err != nil {
+			return nil, &models.HTTPError{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal Server Error",
+			}
+		}
+		users[i] = user
+	}
+
+	return users, nil
+}
