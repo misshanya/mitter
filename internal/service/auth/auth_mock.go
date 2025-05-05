@@ -88,6 +88,36 @@ func (r *mockUserRepo) ChangePassword(ctx context.Context, id uuid.UUID, newHash
 	return nil
 }
 
+func (r *mockUserRepo) FollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error {
+	_ = ctx
+	_ = followerID
+	_ = followeeID
+
+	return nil
+}
+
+func (r *mockUserRepo) UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error {
+	_ = ctx
+	_ = followerID
+	_ = followeeID
+
+	return nil
+}
+
+func (r *mockUserRepo) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]uuid.UUID, error) {
+	_ = ctx
+	_ = followerID
+
+	return []uuid.UUID{testUserID}, nil
+}
+
+func (r *mockUserRepo) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]uuid.UUID, error) {
+	_ = ctx
+	_ = followeeID
+
+	return []uuid.UUID{testUserID}, nil
+}
+
 // Mock user metrics
 type mockUserMetrics struct {
 	FakeUsersCount int
