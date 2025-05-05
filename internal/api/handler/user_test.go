@@ -38,6 +38,46 @@ func (s *mockUserService) UpdateUser(ctx context.Context, id uuid.UUID, user *mo
 	return nil
 }
 
+func (s *mockUserService) FollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError {
+	_ = ctx
+	_ = followerID
+	_ = followeeID
+
+	return nil
+}
+
+func (s *mockUserService) UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError {
+	_ = ctx
+	_ = followerID
+	_ = followeeID
+
+	return nil
+}
+
+func (s *mockUserService) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]*models.User, *models.HTTPError) {
+	_ = ctx
+	_ = followerID
+
+	return []*models.User{{
+		ID:             uuid.New(),
+		Login:          "testuser",
+		Name:           "Test User",
+		HashedPassword: "abracadabra",
+	}}, nil
+}
+
+func (s *mockUserService) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]*models.User, *models.HTTPError) {
+	_ = ctx
+	_ = followeeID
+
+	return []*models.User{{
+		ID:             uuid.New(),
+		Login:          "testfollower",
+		Name:           "Test Follower",
+		HashedPassword: "abracadabra",
+	}}, nil
+}
+
 // Tests
 func TestUserHandler_GetMe(t *testing.T) {
 	e := echo.New()
