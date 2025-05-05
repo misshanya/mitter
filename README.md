@@ -63,7 +63,7 @@ go build -o server .
 ## My plans
 
 ### Users
-- [ ] Following
+- [x] Following (also WIP and testing)
 - [ ] Friends
 - [ ] Users' ratings (one user can rate another user only once (rate editing allowed))
 
