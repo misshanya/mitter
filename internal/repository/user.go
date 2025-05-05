@@ -84,3 +84,25 @@ func (r *UserRepository) ChangePassword(ctx context.Context, id uuid.UUID, newHa
 		ID:       id,
 	})
 }
+
+func (r *UserRepository) FollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error {
+	return r.queries.FollowUser(ctx, storage.FollowUserParams{
+		FollowerID: followerID,
+		FolloweeID: followeeID,
+	})
+}
+
+func (r *UserRepository) UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error {
+	return r.queries.UnfollowUser(ctx, storage.UnfollowUserParams{
+		FollowerID: followerID,
+		FolloweeID: followeeID,
+	})
+}
+
+func (r *UserRepository) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]uuid.UUID, error) {
+	return r.queries.GetUserFollows(ctx, followerID)
+}
+
+func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]uuid.UUID, error) {
+	return r.queries.GetUserFollowers(ctx, followeeID)
+}

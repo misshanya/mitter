@@ -16,4 +16,9 @@ type UserRepository interface {
 
 	GetCurrentPasswordHash(ctx context.Context, id uuid.UUID) (string, error)
 	ChangePassword(ctx context.Context, id uuid.UUID, newHashedPassword string) error
+
+	FollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error
+	UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error
+	GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]uuid.UUID, error)
+	GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]uuid.UUID, error)
 }
