@@ -176,6 +176,7 @@ func (s *Service) DeleteMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, *models.HTTPError) {
 	isAlreadyLiked, err := s.mr.IsMittLikedByUser(ctx, userID, mittID)
 	if err != nil {
+		slog.Error("error getting isAlreadyLiked", slog.Any("err", err))
 		return false, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -184,6 +185,7 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 
 	if !isAlreadyLiked {
 		if err := s.mr.LikeMitt(ctx, userID, mittID); err != nil {
+			slog.Error("error liking mitt", slog.Any("err", err))
 			return false, &models.HTTPError{
 				Code:    http.StatusInternalServerError,
 				Message: "Internal server error",
@@ -197,6 +199,7 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 	}
 
 	if err := s.mr.DeleteMittLike(ctx, userID, mittID); err != nil {
+		slog.Error("error deleting mitt like", slog.Any("err", err))
 		return false, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
