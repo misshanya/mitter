@@ -3,13 +3,13 @@ package auth
 import (
 	"context"
 	"errors"
+	"github.com/misshanya/mitter/pkg/pgutil"
 	"log/slog"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/misshanya/mitter/internal/models"
-	"github.com/misshanya/mitter/internal/service/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -80,7 +80,7 @@ func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUI
 
 	id, err := s.ur.CreateUser(ctx, user)
 	if err != nil {
-		if utils.IsUniqueViolation(err) {
+		if pgutil.IsUniqueViolation(err) {
 			slog.Error("user already exists", slog.String("login", user.Login))
 			return uuid.Nil, &models.HTTPError{
 				Code:    http.StatusConflict,
