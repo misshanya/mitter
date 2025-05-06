@@ -74,7 +74,24 @@ func (s *Service) UpdateUser(ctx context.Context, id uuid.UUID, user *models.Use
 }
 
 func (s *Service) FollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError {
-	err := s.ur.FollowUser(ctx, followerID, followeeID)
+	// Check if user (followee) exists
+	_, err := s.ur.GetUserByID(ctx, followeeID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return &models.HTTPError{
+				Code:    http.StatusNotFound,
+				Message: "User not found",
+			}
+		}
+
+		slog.Error("error getting user", slog.Any("err", err))
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+	}
+
+	err = s.ur.FollowUser(ctx, followerID, followeeID)
 	if err != nil {
 		slog.Error("error following user", slog.Any("err", err))
 		return &models.HTTPError{
