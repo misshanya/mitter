@@ -31,6 +31,11 @@ func (s *Service) GetUser(ctx context.Context, id uuid.UUID) (*models.User, *mod
 				Message: "User not found",
 			}
 		}
+
+		return nil, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
 	}
 
 	return user, nil
