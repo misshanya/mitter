@@ -59,10 +59,6 @@ And Grafana's envs (if you run it via docker compose)
 cp .config/grafana/.env.example .config/grafana/.env
 ```
 
-```
-
-```
-
 ### Docker compose
 
 ```bash
