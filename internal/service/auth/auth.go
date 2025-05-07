@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"github.com/misshanya/mitter/pkg/crypto"
 	"github.com/misshanya/mitter/pkg/pgutil"
 	"log/slog"
 	"net/http"
@@ -41,9 +42,17 @@ func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *mod
 	}
 
 	// Check password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(creds.Password)); err != nil {
+	ok, err := crypto.ComparePasswordAndHash(creds.Password, user.HashedPassword)
+	if err != nil {
+		slog.Error("error comparing password while signing in", slog.Any("err", err))
 		return "", &models.HTTPError{
-			Code:    http.StatusUnauthorized,
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+	if !ok {
+		return "", &models.HTTPError{
+			Code:    http.StatusBadRequest,
 			Message: "Invalid login or password",
 		}
 	}
@@ -68,7 +77,7 @@ func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *mod
 
 func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUID, *models.HTTPError) {
 	// Hash password and store it in user.HashedPassword
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := crypto.GenerateHash(user.Password)
 	if err != nil {
 		slog.Error("error hashing password", slog.Any("err", err))
 		return uuid.Nil, &models.HTTPError{
@@ -76,7 +85,7 @@ func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUI
 			Message: "Internal Server Error",
 		}
 	}
-	user.HashedPassword = string(hashedPassword)
+	user.HashedPassword = hashedPassword
 
 	id, err := s.ur.CreateUser(ctx, user)
 	if err != nil {
@@ -119,7 +128,15 @@ func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePasswo
 		}
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(currentPwdHash), []byte(changePassword.OldPassword)); err != nil {
+	ok, err := crypto.ComparePasswordAndHash(changePassword.OldPassword, currentPwdHash)
+	if err != nil {
+		slog.Error("error comparing old password", slog.Any("err", err))
+		return &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+	if !ok {
 		return &models.HTTPError{
 			Code:    http.StatusBadRequest,
 			Message: "Old password doesn't match",
