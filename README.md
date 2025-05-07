@@ -1,12 +1,14 @@
 # Mitter
+
 [![wakatime](https://wakatime.com/badge/user/6c2e820c-673b-4690-9190-7b15c368b37f/project/a0a1543a-1b5c-4206-814b-c661a923cec8.svg?style=for-the-badge)](#)
 
-Mitter is my Twitter-inspired “social network”. 
+Mitter is my Twitter-inspired “social network”.
 In early development stage
 
 ## Functionality
 
 ### Users
+
 - Sign-Up
 - Sign-In
 - Update profile (change name)
@@ -14,6 +16,7 @@ In early development stage
 - Delete account
 
 ### Mitts
+
 - Create mitt
 - Update mitt (change content)
 - Get user's mitts
@@ -47,15 +50,27 @@ cd mitter
 You also need to create .env or pass env variables directly
 
 ```bash
-mv .env.example .env
+cp .env.example .env
+```
+
+And Grafana's envs (if you run it via docker compose)
+
+```bash
+cp .config/grafana/.env.example .config/grafana/.env
+```
+
+```
+
 ```
 
 ### Docker compose
+
 ```bash
 docker compose up -d
 ```
 
 ### Build binary
+
 ```bash
 go build -o server .
 ```
@@ -63,10 +78,11 @@ go build -o server .
 ## My plans
 
 ### Users
+
 - [x] Following (also WIP and testing)
 - [ ] Friends
 - [ ] Users' ratings (one user can rate another user only once (rate editing allowed))
 
 ### Mitts
-- [ ] Mitts' comments
 
+- [ ] Mitts' comments
