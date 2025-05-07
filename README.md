@@ -56,7 +56,7 @@ cp .env.example .env
 And Grafana's envs (if you run it via docker compose)
 
 ```bash
-cp .config/grafana/.env.example .config/grafana/.env
+cp ./config/grafana/.env.example ./config/grafana/.env
 ```
 
 ### Docker compose
