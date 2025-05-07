@@ -12,7 +12,7 @@ var (
 		ID:             testUserID,
 		Login:          "testuser",
 		Name:           "Test User",
-		HashedPassword: "$2a$10$OW9yD0TyX0pOBO2MzJhtpeOC6O694OS37VJnnaJKFm.rUFt5fy4O6",
+		HashedPassword: "$argon2id$v=19$m=65536,t=3,p=2$VUNCT0J2RG9NV2xSd1d0eQ$7604v3WFNe5CL1Nt1hVUKXZnuZAuP0l3LSzxRUFtZl0",
 	}
 	testUserID = uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65")
 )
@@ -83,7 +83,8 @@ func (r *mockUserRepo) GetCurrentPasswordHash(ctx context.Context, id uuid.UUID)
 func (r *mockUserRepo) ChangePassword(ctx context.Context, id uuid.UUID, newHashedPassword string) error {
 	_ = ctx
 	_ = id
-	_ = newHashedPassword
+
+	testUser.HashedPassword = newHashedPassword
 
 	return nil
 }
