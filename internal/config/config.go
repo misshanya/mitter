@@ -1,81 +1,39 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
+	"github.com/ilyakaznacheev/cleanenv"
 	"log/slog"
 	"os"
-	"strconv"
 )
 
 type Config struct {
-	Server   server
-	Redis    redis
-	Postgres postgres
+	Server   server   `env:"SERVER" env-required:"true"`
+	Redis    redis    `env:"REDIS" env-required:"true"`
+	Postgres postgres `env:"POSTGRES" env-required:"true"`
 }
 
 type server struct {
-	Addr string
+	Addr string `env:"SERVER_ADDRESS" env-required:"true"`
 }
 
 type redis struct {
-	Addr     string
-	Password string
-	DB       int
+	Addr     string `env:"REDIS_ADDRESS" env-required:"true"`
+	Password string `env:"REDIS_PASSWORD" env-required:"true"`
+	DB       int    `env:"REDIS_DB" env-required:"true"`
 }
 
 type postgres struct {
-	URL string
+	URL string `env:"PG_URL" env-required:"true"`
 }
 
 func NewConfig() *Config {
-	if err := godotenv.Load(); err != nil {
-		slog.Error("Error loading .env file")
-	}
+	var cfg Config
 
-	// server
-	serverAddr := os.Getenv("SERVER_ADDRESS")
-	if serverAddr == "" {
-		serverAddr = "0.0.0.0:8080"
-	}
-
-	// redis
-	redisAddr := os.Getenv("REDIS_ADDRESS")
-	if redisAddr == "" {
-		redisAddr = "127.0.0.1:6379"
-	}
-	redisPassword := os.Getenv("REDIS_PASSWORD")
-
-	var (
-		redisDB int
-		err     error
-	)
-	redisDBStr := os.Getenv("REDIS_DB")
-	if redisDBStr != "" {
-		redisDB, err = strconv.Atoi(redisDBStr)
-		if err != nil {
-			slog.Error("Error parsing REDIS_DB")
-			os.Exit(1)
-		}
-	}
-
-	// postgres
-	pgURL := os.Getenv("PG_URL")
-	if pgURL == "" {
-		slog.Error("Error parsing PG_URL")
+	err := cleanenv.ReadEnv(&cfg)
+	if err != nil {
+		slog.Error("failed to read config", slog.Any("err", err))
 		os.Exit(1)
 	}
 
-	return &Config{
-		Server: server{
-			Addr: serverAddr,
-		},
-		Redis: redis{
-			Addr:     redisAddr,
-			Password: redisPassword,
-			DB:       redisDB,
-		},
-		Postgres: postgres{
-			URL: pgURL,
-		},
-	}
+	return &cfg
 }
