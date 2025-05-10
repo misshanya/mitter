@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/misshanya/mitter/internal/models"
+	"github.com/misshanya/mitter/pkg/pgutil"
 	"log/slog"
 	"net/http"
 )
@@ -93,6 +94,13 @@ func (s *Service) FollowUser(ctx context.Context, followerID uuid.UUID, followee
 
 	err = s.ur.FollowUser(ctx, followerID, followeeID)
 	if err != nil {
+		if pgutil.IsUniqueViolation(err) {
+			return &models.HTTPError{
+				Code:    http.StatusConflict,
+				Message: "Already followed",
+			}
+		}
+
 		slog.Error("error following user", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,

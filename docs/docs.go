@@ -856,6 +856,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/dto.HTTPError"
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {

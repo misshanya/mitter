@@ -153,6 +153,7 @@ func (h *UserHandler) updateUser(c echo.Context) error {
 //	@Success	200
 //	@Failure	400	{object}	dto.HTTPError
 //	@Failure	401	{object}	dto.HTTPError
+//	@Failure	409	{object}	dto.HTTPError
 //	@Failure	500	{object}	dto.HTTPError
 //	@Router		/user/{id}/follow [post]
 func (h *UserHandler) followUser(c echo.Context) error {
