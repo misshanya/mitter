@@ -99,10 +99,18 @@ func (r *UserRepository) UnfollowUser(ctx context.Context, followerID uuid.UUID,
 	})
 }
 
-func (r *UserRepository) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]uuid.UUID, error) {
-	return r.queries.GetUserFollows(ctx, followerID)
+func (r *UserRepository) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
+	return r.queries.GetUserFollows(ctx, storage.GetUserFollowsParams{
+		Limit:      limit,
+		Offset:     offset,
+		FollowerID: followerID,
+	})
 }
 
-func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]uuid.UUID, error) {
-	return r.queries.GetUserFollowers(ctx, followeeID)
+func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
+	return r.queries.GetUserFollowers(ctx, storage.GetUserFollowersParams{
+		Limit:      limit,
+		Offset:     offset,
+		FolloweeID: followeeID,
+	})
 }

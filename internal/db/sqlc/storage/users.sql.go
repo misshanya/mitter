@@ -104,11 +104,18 @@ func (q *Queries) GetUserByLogin(ctx context.Context, login string) (User, error
 
 const getUserFollowers = `-- name: GetUserFollowers :many
 SELECT follower_id FROM users_follows
-WHERE followee_id = $1
+WHERE followee_id = $3
+LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := q.db.Query(ctx, getUserFollowers, followeeID)
+type GetUserFollowersParams struct {
+	Limit      int32
+	Offset     int32
+	FolloweeID uuid.UUID
+}
+
+func (q *Queries) GetUserFollowers(ctx context.Context, arg GetUserFollowersParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, getUserFollowers, arg.Limit, arg.Offset, arg.FolloweeID)
 	if err != nil {
 		return nil, err
 	}
@@ -129,11 +136,18 @@ func (q *Queries) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([
 
 const getUserFollows = `-- name: GetUserFollows :many
 SELECT followee_id FROM users_follows
-WHERE follower_id = $1
+WHERE follower_id = $3
+LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := q.db.Query(ctx, getUserFollows, followerID)
+type GetUserFollowsParams struct {
+	Limit      int32
+	Offset     int32
+	FollowerID uuid.UUID
+}
+
+func (q *Queries) GetUserFollows(ctx context.Context, arg GetUserFollowsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, getUserFollows, arg.Limit, arg.Offset, arg.FollowerID)
 	if err != nil {
 		return nil, err
 	}

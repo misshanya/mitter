@@ -42,8 +42,10 @@ WHERE follower_id = @follower_id AND
 
 -- name: GetUserFollows :many
 SELECT followee_id FROM users_follows
-WHERE follower_id = @follower_id;
+WHERE follower_id = @follower_id
+LIMIT $1 OFFSET $2;
 
 -- name: GetUserFollowers :many
 SELECT follower_id FROM users_follows
-WHERE followee_id = @followee_id;
+WHERE followee_id = @followee_id
+LIMIT $1 OFFSET $2;

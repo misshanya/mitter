@@ -644,6 +644,14 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       responses:
         "200":
           description: OK
@@ -676,6 +684,14 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       responses:
         "200":
           description: OK

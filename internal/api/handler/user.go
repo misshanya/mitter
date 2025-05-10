@@ -8,6 +8,7 @@ import (
 	"github.com/misshanya/mitter/internal/api/dto"
 	"github.com/misshanya/mitter/internal/models"
 	"net/http"
+	"strconv"
 )
 
 type userService interface {
@@ -18,8 +19,8 @@ type userService interface {
 
 	FollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError
 	UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError
-	GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]*models.User, *models.HTTPError)
-	GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]*models.User, *models.HTTPError)
+	GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError)
+	GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError)
 }
 
 type UserHandler struct {
@@ -213,6 +214,8 @@ func (h *UserHandler) unfollowUser(c echo.Context) error {
 //	@Summary	Get My Follows
 //	@Security	Bearer
 //	@Param		Authorization	header		string	true	"access token 'Bearer {token}'"
+//	@Param		offset			query		int		false	"Offset"
+//	@Param		limit			query		int		false	"Limit"
 //	@Success	200				{object}	[]dto.UserResponse
 //	@Failure	400				{object}	dto.HTTPError
 //	@Failure	401				{object}	dto.HTTPError
@@ -223,7 +226,34 @@ func (h *UserHandler) getMyFollows(c echo.Context) error {
 
 	userID := c.Get("userID").(uuid.UUID)
 
-	users, httpErr := h.service.GetUserFollows(ctx, userID)
+	var limit int32
+	limitStr := c.QueryParam("limit")
+	if limitStr == "" {
+		limit = 30
+	} else {
+		limit64, err := strconv.Atoi(limitStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+		}
+		limit = int32(limit64)
+	}
+
+	var offset int32
+	offsetStr := c.QueryParam("offset")
+	if offsetStr != "" {
+		offset64, err := strconv.Atoi(offsetStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+		}
+		offset = int32(offset64)
+	}
+
+	// Check if limit or offset is negative
+	if limit < 0 || offset < 0 {
+		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: "Limit and offset can't be negative"})
+	}
+
+	users, httpErr := h.service.GetUserFollows(ctx, userID, limit, offset)
 	if httpErr != nil {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
@@ -246,6 +276,8 @@ func (h *UserHandler) getMyFollows(c echo.Context) error {
 //	@Summary	Get My Followers
 //	@Security	Bearer
 //	@Param		Authorization	header		string	true	"access token 'Bearer {token}'"
+//	@Param		offset			query		int		false	"Offset"
+//	@Param		limit			query		int		false	"Limit"
 //	@Success	200				{object}	[]dto.UserResponse
 //	@Failure	400				{object}	dto.HTTPError
 //	@Failure	401				{object}	dto.HTTPError
@@ -256,7 +288,34 @@ func (h *UserHandler) getMyFollowers(c echo.Context) error {
 
 	userID := c.Get("userID").(uuid.UUID)
 
-	users, httpErr := h.service.GetUserFollowers(ctx, userID)
+	var limit int32
+	limitStr := c.QueryParam("limit")
+	if limitStr == "" {
+		limit = 30
+	} else {
+		limit64, err := strconv.Atoi(limitStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+		}
+		limit = int32(limit64)
+	}
+
+	var offset int32
+	offsetStr := c.QueryParam("offset")
+	if offsetStr != "" {
+		offset64, err := strconv.Atoi(offsetStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+		}
+		offset = int32(offset64)
+	}
+
+	// Check if limit or offset is negative
+	if limit < 0 || offset < 0 {
+		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: "Limit and offset can't be negative"})
+	}
+
+	users, httpErr := h.service.GetUserFollowers(ctx, userID, limit, offset)
 	if httpErr != nil {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}

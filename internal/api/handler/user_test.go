@@ -54,9 +54,11 @@ func (s *mockUserService) UnfollowUser(ctx context.Context, followerID uuid.UUID
 	return nil
 }
 
-func (s *mockUserService) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]*models.User, *models.HTTPError) {
+func (s *mockUserService) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	_ = ctx
 	_ = followerID
+	_ = limit
+	_ = offset
 
 	return []*models.User{{
 		ID:             uuid.New(),
@@ -66,9 +68,11 @@ func (s *mockUserService) GetUserFollows(ctx context.Context, followerID uuid.UU
 	}}, nil
 }
 
-func (s *mockUserService) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]*models.User, *models.HTTPError) {
+func (s *mockUserService) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	_ = ctx
 	_ = followeeID
+	_ = limit
+	_ = offset
 
 	return []*models.User{{
 		ID:             uuid.New(),

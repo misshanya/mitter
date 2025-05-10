@@ -122,9 +122,9 @@ func (s *Service) UnfollowUser(ctx context.Context, followerID uuid.UUID, follow
 	return nil
 }
 
-func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]*models.User, *models.HTTPError) {
+func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	// Get user follows (ids)
-	usersIDs, err := s.ur.GetUserFollows(ctx, followerID)
+	usersIDs, err := s.ur.GetUserFollows(ctx, followerID, limit, offset)
 	if err != nil {
 		slog.Error("error getting user follows", slog.Any("err", err))
 		return nil, &models.HTTPError{
@@ -150,9 +150,9 @@ func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]*
 	return users, nil
 }
 
-func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]*models.User, *models.HTTPError) {
+func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	// Get user followers (ids)
-	usersIDs, err := s.ur.GetUserFollowers(ctx, followeeID)
+	usersIDs, err := s.ur.GetUserFollowers(ctx, followeeID, limit, offset)
 	if err != nil {
 		slog.Error("error getting user followers", slog.Any("err", err))
 		return nil, &models.HTTPError{

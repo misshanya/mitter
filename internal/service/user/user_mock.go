@@ -87,16 +87,20 @@ func (r *mockUserRepo) UnfollowUser(ctx context.Context, followerID uuid.UUID, f
 	return nil
 }
 
-func (r *mockUserRepo) GetUserFollows(ctx context.Context, followerID uuid.UUID) ([]uuid.UUID, error) {
+func (r *mockUserRepo) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
 	_ = ctx
 	_ = followerID
+	_ = limit
+	_ = offset
 
 	return []uuid.UUID{testUserID}, nil
 }
 
-func (r *mockUserRepo) GetUserFollowers(ctx context.Context, followeeID uuid.UUID) ([]uuid.UUID, error) {
+func (r *mockUserRepo) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
 	_ = ctx
 	_ = followeeID
+	_ = limit
+	_ = offset
 
 	return []uuid.UUID{testUserID}, nil
 }
