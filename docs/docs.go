@@ -856,6 +856,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/dto.HTTPError"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPError"
+                        }
+                    },
                     "409": {
                         "description": "Conflict",
                         "schema": {
