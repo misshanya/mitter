@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/misshanya/mitter/internal/api/dto"
 	"github.com/misshanya/mitter/internal/models"
+	"github.com/misshanya/mitter/pkg/pagination"
 	"net/http"
-	"strconv"
 )
 
 type mittService interface {
@@ -155,31 +155,9 @@ func (h *MittHandler) getAllUserMitts(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
 	}
 
-	var limit int32
-	limitStr := c.QueryParam("limit")
-	if limitStr == "" {
-		limit = 30
-	} else {
-		limit64, err := strconv.Atoi(limitStr)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
-		}
-		limit = int32(limit64)
-	}
-
-	var offset int32
-	offsetStr := c.QueryParam("offset")
-	if offsetStr != "" {
-		offset64, err := strconv.Atoi(offsetStr)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
-		}
-		offset = int32(offset64)
-	}
-
-	// Check if limit or offset is negative
-	if limit < 0 || offset < 0 {
-		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: "Limit and offset can't be negative"})
+	limit, offset, err := pagination.GetLimitAndOffset(c, 30)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
 	}
 
 	mitts, httpErr := h.ms.GetAllUserMitts(ctx, userIDToGet, limit, offset)
