@@ -3,7 +3,8 @@
 CREATE TABLE IF NOT EXISTS users_follows (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     follower_id UUID NOT NULL REFERENCES users(id),
-    followee_id UUID NOT NULL REFERENCES users(id)
+    followee_id UUID NOT NULL REFERENCES users(id),
+    UNIQUE(follower_id, followee_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_follows_follower_id ON users_follows(follower_id);
