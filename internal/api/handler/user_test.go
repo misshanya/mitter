@@ -82,6 +82,20 @@ func (s *mockUserService) GetUserFollowers(ctx context.Context, followeeID uuid.
 	}}, nil
 }
 
+func (s *mockUserService) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
+	_ = ctx
+	_ = userID
+	_ = limit
+	_ = offset
+
+	return []*models.User{{
+		ID:             uuid.New(),
+		Login:          "testfollower",
+		Name:           "Test Follower",
+		HashedPassword: "abracadabra",
+	}}, nil
+}
+
 // Tests
 func TestUserHandler_GetMe(t *testing.T) {
 	e := echo.New()
