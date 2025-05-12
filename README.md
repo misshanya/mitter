@@ -76,7 +76,7 @@ go build -o server .
 ### Users
 
 - [x] Following (also WIP and testing)
-- [ ] Friends
+- [x] Friends
 - [ ] Users' ratings (one user can rate another user only once (rate editing allowed))
 
 ### Mitts
