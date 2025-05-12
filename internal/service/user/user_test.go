@@ -43,3 +43,47 @@ func TestUserService_UpdateUser(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestUserService_FollowUser(t *testing.T) {
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	ctx := context.Background()
+
+	err := service.FollowUser(ctx, testUserID, testUser2ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUserService_UnfollowUser(t *testing.T) {
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	ctx := context.Background()
+
+	err := service.UnfollowUser(ctx, testUserID, testUser2ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUserService_GetUserFollows(t *testing.T) {
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	ctx := context.Background()
+
+	follows, err := service.GetUserFollows(ctx, testUserID, 30, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, []*models.User{&testUser}, follows)
+}
+
+func TestUserService_GetUserFollowers(t *testing.T) {
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	ctx := context.Background()
+
+	followers, err := service.GetUserFollowers(ctx, testUserID, 30, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, []*models.User{&testUser}, followers)
+}

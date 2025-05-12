@@ -15,6 +15,14 @@ var (
 		HashedPassword: "$2a$10$OW9yD0TyX0pOBO2MzJhtpeOC6O694OS37VJnnaJKFm.rUFt5fy4O6",
 	}
 	testUserID = uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65")
+
+	testUser2 = models.User{
+		ID:             testUser2ID,
+		Login:          "testuser2",
+		Name:           "Test User2",
+		HashedPassword: "$2a$10$OW9yD0TyX0pOBO2MzJhtpeOC6O694OS37VJnnaJKFm.rUFt5fy4O6",
+	}
+	testUser2ID = uuid.MustParse("38386ffe-54ac-48be-9244-a5144b41a014")
 )
 
 // Mock User repo
