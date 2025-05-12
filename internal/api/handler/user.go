@@ -21,6 +21,7 @@ type userService interface {
 	UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError
 	GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError)
 	GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError)
+	GetUserFriends(ctx context.Context, userID uuid.UUID) ([]*models.User, *models.HTTPError)
 }
 
 type UserHandler struct {
@@ -44,6 +45,7 @@ func (h *UserHandler) Routes(group *echo.Group) {
 	group.DELETE("/:id/follow", h.unfollowUser)
 	group.GET("/follows", h.getMyFollows)
 	group.GET("/followers", h.getMyFollowers)
+	group.GET("/friends", h.getMyFriends)
 }
 
 // getMe godoc
@@ -272,6 +274,41 @@ func (h *UserHandler) getMyFollowers(c echo.Context) error {
 	}
 
 	users, httpErr := h.service.GetUserFollowers(ctx, userID, limit, offset)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
+	}
+
+	resp := make([]dto.UserResponse, len(users))
+	for i, user := range users {
+		resp[i] = dto.UserResponse{
+			ID:    user.ID,
+			Login: user.Login,
+			Name:  user.Name,
+		}
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
+
+// getMyFriends godoc
+//
+//	@Tags		User
+//	@Summary	Get My Friends
+//	@Security	Bearer
+//	@Param		Authorization	header		string	true	"access token 'Bearer {token}'"
+//	@Param		offset			query		int		false	"Offset"
+//	@Param		limit			query		int		false	"Limit"
+//	@Success	200				{object}	[]dto.UserResponse
+//	@Failure	400				{object}	dto.HTTPError
+//	@Failure	401				{object}	dto.HTTPError
+//	@Failure	500				{object}	dto.HTTPError
+//	@Router		/user/friends [get]
+func (h *UserHandler) getMyFriends(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	userID := c.Get("userID").(uuid.UUID)
+
+	users, httpErr := h.service.GetUserFriends(ctx, userID)
 	if httpErr != nil {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}

@@ -49,3 +49,9 @@ LIMIT $1 OFFSET $2;
 SELECT follower_id FROM users_follows
 WHERE followee_id = @followee_id
 LIMIT $1 OFFSET $2;
+
+-- name: GetUserFriends :many
+SELECT uf1.followee_id
+FROM users_follows uf1
+JOIN users_follows uf2 ON uf1.follower_id = uf2.followee_id AND uf1.followee_id = uf2.follower_id
+WHERE uf1.follower_id = @id;

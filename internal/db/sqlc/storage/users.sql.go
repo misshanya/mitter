@@ -166,6 +166,33 @@ func (q *Queries) GetUserFollows(ctx context.Context, arg GetUserFollowsParams) 
 	return items, nil
 }
 
+const getUserFriends = `-- name: GetUserFriends :many
+SELECT uf1.followee_id
+FROM users_follows uf1
+JOIN users_follows uf2 ON uf1.follower_id = uf2.followee_id AND uf1.followee_id = uf2.follower_id
+WHERE uf1.follower_id = $1
+`
+
+func (q *Queries) GetUserFriends(ctx context.Context, id uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, getUserFriends, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var followee_id uuid.UUID
+		if err := rows.Scan(&followee_id); err != nil {
+			return nil, err
+		}
+		items = append(items, followee_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const unfollowUser = `-- name: UnfollowUser :exec
 DELETE FROM users_follows
 WHERE follower_id = $1 AND

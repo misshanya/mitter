@@ -21,4 +21,5 @@ type UserRepository interface {
 	UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error
 	GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]uuid.UUID, error)
 	GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]uuid.UUID, error)
+	GetUserFriends(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error)
 }
