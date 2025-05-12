@@ -170,11 +170,18 @@ const getUserFriends = `-- name: GetUserFriends :many
 SELECT uf1.followee_id
 FROM users_follows uf1
 JOIN users_follows uf2 ON uf1.follower_id = uf2.followee_id AND uf1.followee_id = uf2.follower_id
-WHERE uf1.follower_id = $1
+WHERE uf1.follower_id = $3
+LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) GetUserFriends(ctx context.Context, id uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := q.db.Query(ctx, getUserFriends, id)
+type GetUserFriendsParams struct {
+	Limit  int32
+	Offset int32
+	ID     uuid.UUID
+}
+
+func (q *Queries) GetUserFriends(ctx context.Context, arg GetUserFriendsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, getUserFriends, arg.Limit, arg.Offset, arg.ID)
 	if err != nil {
 		return nil, err
 	}

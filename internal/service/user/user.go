@@ -178,9 +178,9 @@ func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, li
 	return users, nil
 }
 
-func (s *Service) GetUserFriends(ctx context.Context, userID uuid.UUID) ([]*models.User, *models.HTTPError) {
+func (s *Service) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	// Get user friends (ids)
-	usersIDs, err := s.ur.GetUserFriends(ctx, userID)
+	usersIDs, err := s.ur.GetUserFriends(ctx, userID, limit, offset)
 	if err != nil {
 		slog.Error("error getting user friends", slog.Any("err", err))
 		return nil, &models.HTTPError{

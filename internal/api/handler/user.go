@@ -21,7 +21,7 @@ type userService interface {
 	UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError
 	GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError)
 	GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError)
-	GetUserFriends(ctx context.Context, userID uuid.UUID) ([]*models.User, *models.HTTPError)
+	GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError)
 }
 
 type UserHandler struct {
@@ -308,7 +308,12 @@ func (h *UserHandler) getMyFriends(c echo.Context) error {
 
 	userID := c.Get("userID").(uuid.UUID)
 
-	users, httpErr := h.service.GetUserFriends(ctx, userID)
+	limit, offset, err := pagination.GetLimitAndOffset(c, 30)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+	}
+
+	users, httpErr := h.service.GetUserFriends(ctx, userID, limit, offset)
 	if httpErr != nil {
 		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}

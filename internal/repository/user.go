@@ -115,6 +115,10 @@ func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.U
 	})
 }
 
-func (r *UserRepository) GetUserFriends(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
-	return r.queries.GetUserFriends(ctx, userID)
+func (r *UserRepository) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
+	return r.queries.GetUserFriends(ctx, storage.GetUserFriendsParams{
+		ID:     userID,
+		Limit:  limit,
+		Offset: offset,
+	})
 }
