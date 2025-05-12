@@ -113,6 +113,15 @@ func (r *mockUserRepo) GetUserFollowers(ctx context.Context, followeeID uuid.UUI
 	return []uuid.UUID{testUserID}, nil
 }
 
+func (r *mockUserRepo) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
+	_ = ctx
+	_ = userID
+	_ = limit
+	_ = offset
+
+	return []uuid.UUID{testUserID}, nil
+}
+
 // Mock user metrics
 type mockUserMetrics struct {
 	FakeUsersCount int
