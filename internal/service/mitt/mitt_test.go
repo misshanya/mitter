@@ -8,7 +8,7 @@ import (
 
 // Tests
 func TestMittService_CreateMitt(t *testing.T) {
-	service := NewService(mockMittRepo{}, &mockMittMetrics{})
+	service := NewService(mockMittRepo{}, &mockMittMetrics{}, &mockUserRepo{})
 	ctx := context.Background()
 
 	mitt, err := service.CreateMitt(ctx, mockUserID, &models.MittCreate{
@@ -24,7 +24,7 @@ func TestMittService_CreateMitt(t *testing.T) {
 }
 
 func TestMittService_GetMitt(t *testing.T) {
-	service := NewService(mockMittRepo{}, &mockMittMetrics{})
+	service := NewService(mockMittRepo{}, &mockMittMetrics{}, &mockUserRepo{})
 	ctx := context.Background()
 
 	mitt, err := service.GetMitt(ctx, mockMittModel.ID)
@@ -38,7 +38,7 @@ func TestMittService_GetMitt(t *testing.T) {
 }
 
 func TestMittService_GetAllUserMitts(t *testing.T) {
-	service := NewService(mockMittRepo{}, &mockMittMetrics{})
+	service := NewService(mockMittRepo{}, &mockMittMetrics{}, &mockUserRepo{})
 	ctx := context.Background()
 
 	mitts, err := service.GetAllUserMitts(ctx, mockUserID, 1, 0)
@@ -53,7 +53,7 @@ func TestMittService_GetAllUserMitts(t *testing.T) {
 }
 
 func TestMittService_UpdateMitt(t *testing.T) {
-	service := NewService(mockMittRepo{}, &mockMittMetrics{})
+	service := NewService(mockMittRepo{}, &mockMittMetrics{}, &mockUserRepo{})
 	ctx := context.Background()
 
 	mitt, err := service.UpdateMitt(ctx, mockUserID, mockMittModel.ID, &models.MittUpdate{
@@ -69,7 +69,7 @@ func TestMittService_UpdateMitt(t *testing.T) {
 }
 
 func TestMittService_DeleteMitt(t *testing.T) {
-	service := NewService(mockMittRepo{}, &mockMittMetrics{})
+	service := NewService(mockMittRepo{}, &mockMittMetrics{}, &mockUserRepo{})
 	ctx := context.Background()
 
 	err := service.DeleteMitt(ctx, mockUserID, mockMittModel.ID)
@@ -79,7 +79,7 @@ func TestMittService_DeleteMitt(t *testing.T) {
 }
 
 func TestMittService_SwitchLike(t *testing.T) {
-	service := NewService(mockMittRepo{}, &mockMittMetrics{})
+	service := NewService(mockMittRepo{}, &mockMittMetrics{}, &mockUserRepo{})
 	ctx := context.Background()
 
 	// Like mitt
