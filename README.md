@@ -14,6 +14,11 @@ In early development stage
 - Update profile (change name)
 - Change password
 - Delete account
+- Follow another user
+- Unfollow user
+- Get my follows
+- Get my followers
+- Get my friends (users that followed you and followed by you)
 
 ### Mitts
 
