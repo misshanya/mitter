@@ -420,6 +420,37 @@ paths:
       summary: Like Mitt
       tags:
       - Mitts
+  /mitt/feed:
+    get:
+      parameters:
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.MittResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPError'
+      summary: Get Feed Mitts
+      tags:
+      - Mitts
   /mitt/user/{id}:
     get:
       parameters:

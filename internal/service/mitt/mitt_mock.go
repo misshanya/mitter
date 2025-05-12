@@ -102,6 +102,14 @@ func (m mockMittRepo) GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (
 	return mockMittModel.Likes, nil
 }
 
+func (m mockMittRepo) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, error) {
+	_ = ctx
+	_ = limit
+	_ = offset
+
+	return []*models.Mitt{mockMittModel}, nil
+}
+
 // Mock metrics
 type mockMittMetrics struct {
 	FakeTotalMitts int

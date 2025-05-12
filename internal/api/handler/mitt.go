@@ -24,6 +24,8 @@ type mittService interface {
 	// Likes
 
 	SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, *models.HTTPError)
+
+	Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, *models.HTTPError)
 }
 
 type MittHandler struct {
@@ -48,6 +50,8 @@ func (h *MittHandler) Routes(group *echo.Group) {
 	group.DELETE("/:id", h.deleteMitt, h.reqAuthMiddleware)
 
 	group.POST("/:id/like", h.likeMitt, h.reqAuthMiddleware)
+
+	group.GET("/feed", h.feed)
 }
 
 // createMitt godoc
@@ -300,6 +304,44 @@ func (h *MittHandler) likeMitt(c echo.Context) error {
 
 	resp := dto.MittLikeResponse{
 		Like: isLiked,
+	}
+	return c.JSON(http.StatusOK, resp)
+}
+
+// feed godoc
+//
+//	@Summary	Get Feed Mitts
+//	@Tags		Mitts
+//	@Param		offset	query	int	false	"Offset"
+//	@Param		limit	query	int	false	"Limit"
+//	@Produce	json
+//	@Success	200	{object}	[]dto.MittResponse
+//	@Failure	400	{object}	dto.HTTPError
+//	@Failure	500	{object}	dto.HTTPError
+//	@Router		/mitt/feed [get]
+func (h *MittHandler) feed(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	limit, offset, err := pagination.GetLimitAndOffset(c, 30)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.HTTPError{Message: err.Error()})
+	}
+
+	mitts, httpErr := h.ms.Feed(ctx, limit, offset)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
+	}
+
+	resp := make([]dto.MittResponse, len(mitts))
+	for i, m := range mitts {
+		resp[i] = dto.MittResponse{
+			ID:        m.ID,
+			Author:    m.Author,
+			Content:   m.Content,
+			CreatedAt: m.CreatedAt,
+			UpdatedAt: m.UpdatedAt,
+			Likes:     m.Likes,
+		}
 	}
 	return c.JSON(http.StatusOK, resp)
 }

@@ -63,6 +63,43 @@ func (q *Queries) DeleteMittLike(ctx context.Context, arg DeleteMittLikeParams) 
 	return err
 }
 
+const feed = `-- name: Feed :many
+SELECT id, author, content, created_at, updated_at FROM mitts
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
+`
+
+type FeedParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) Feed(ctx context.Context, arg FeedParams) ([]Mitt, error) {
+	rows, err := q.db.Query(ctx, feed, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Mitt
+	for rows.Next() {
+		var i Mitt
+		if err := rows.Scan(
+			&i.ID,
+			&i.Author,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllUserMitts = `-- name: GetAllUserMitts :many
 SELECT id, author, content, created_at, updated_at FROM mitts
 WHERE author = $3

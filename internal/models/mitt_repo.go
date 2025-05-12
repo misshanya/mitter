@@ -21,4 +21,6 @@ type MittRepository interface {
 	IsMittLikedByUser(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, error)
 	DeleteMittLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error
 	GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (int64, error)
+
+	Feed(ctx context.Context, limit, offset int32) ([]*Mitt, error)
 }

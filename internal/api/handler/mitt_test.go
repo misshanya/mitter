@@ -89,6 +89,14 @@ func (m *mockMittService) SwitchLike(ctx context.Context, userID uuid.UUID, mitt
 	return false, nil
 }
 
+func (m *mockMittService) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, *models.HTTPError) {
+	_ = ctx
+	_ = limit
+	_ = offset
+
+	return []*models.Mitt{mockMittModel}, nil
+}
+
 // Tests
 func TestMittHandler_CreateMitt(t *testing.T) {
 	e := echo.New()

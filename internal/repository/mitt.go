@@ -115,3 +115,20 @@ func (r *MittRepository) DeleteMittLike(ctx context.Context, userID uuid.UUID, m
 func (r *MittRepository) GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (int64, error) {
 	return r.queries.GetMittLikesCount(ctx, mittID)
 }
+
+func (r *MittRepository) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, error) {
+	mittsDB, err := r.queries.Feed(ctx, storage.FeedParams{
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	mitts := make([]*models.Mitt, len(mittsDB))
+	for i, mittDB := range mittsDB {
+		mitts[i] = mittDBToMitt(mittDB)
+	}
+
+	return mitts, nil
+}

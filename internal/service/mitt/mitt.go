@@ -211,3 +211,25 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 
 	return false, nil
 }
+
+func (s *Service) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, *models.HTTPError) {
+	mitts, err := s.mr.Feed(ctx, limit, offset)
+	if err != nil {
+		slog.Error("failed to get feed", slog.Any("err", err))
+		return nil, &models.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}
+	}
+
+	for _, mitt := range mitts {
+		if err := s.setLikesCount(ctx, mitt); err != nil {
+			return nil, &models.HTTPError{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal server error",
+			}
+		}
+	}
+
+	return mitts, nil
+}

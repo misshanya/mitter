@@ -48,3 +48,9 @@ WHERE user_id = @user_id AND mitt_id = @mitt_id;
 -- name: GetMittLikesCount :one
 SELECT COUNT(*) FROM mitts_likes
 WHERE mitt_id = @mitt_id;
+
+
+-- name: Feed :many
+SELECT * FROM mitts
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2;
