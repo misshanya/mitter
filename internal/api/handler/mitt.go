@@ -92,11 +92,12 @@ func (h *MittHandler) createMitt(c echo.Context) error {
 	}
 
 	resp := dto.MittResponse{
-		ID:        mitt.ID,
-		Author:    mitt.Author,
-		Content:   mitt.Content,
-		CreatedAt: mitt.CreatedAt,
-		UpdatedAt: mitt.UpdatedAt,
+		ID:         mitt.ID,
+		Author:     mitt.AuthorID,
+		AuthorName: mitt.AuthorName,
+		Content:    mitt.Content,
+		CreatedAt:  mitt.CreatedAt,
+		UpdatedAt:  mitt.UpdatedAt,
 	}
 	return c.JSON(http.StatusCreated, resp)
 }
@@ -127,12 +128,13 @@ func (h *MittHandler) getMitt(c echo.Context) error {
 	}
 
 	resp := dto.MittResponse{
-		ID:        mitt.ID,
-		Author:    mitt.Author,
-		Content:   mitt.Content,
-		CreatedAt: mitt.CreatedAt,
-		UpdatedAt: mitt.UpdatedAt,
-		Likes:     mitt.Likes,
+		ID:         mitt.ID,
+		Author:     mitt.AuthorID,
+		AuthorName: mitt.AuthorName,
+		Content:    mitt.Content,
+		CreatedAt:  mitt.CreatedAt,
+		UpdatedAt:  mitt.UpdatedAt,
+		Likes:      mitt.Likes,
 	}
 	return c.JSON(http.StatusOK, resp)
 }
@@ -172,12 +174,13 @@ func (h *MittHandler) getAllUserMitts(c echo.Context) error {
 	resp := make([]dto.MittResponse, len(mitts))
 	for i, m := range mitts {
 		resp[i] = dto.MittResponse{
-			ID:        m.ID,
-			Author:    m.Author,
-			Content:   m.Content,
-			CreatedAt: m.CreatedAt,
-			UpdatedAt: m.UpdatedAt,
-			Likes:     m.Likes,
+			ID:         m.ID,
+			Author:     m.AuthorID,
+			AuthorName: m.AuthorName,
+			Content:    m.Content,
+			CreatedAt:  m.CreatedAt,
+			UpdatedAt:  m.UpdatedAt,
+			Likes:      m.Likes,
 		}
 	}
 	return c.JSON(http.StatusOK, resp)
@@ -230,12 +233,13 @@ func (h *MittHandler) updateMitt(c echo.Context) error {
 	}
 
 	resp := dto.MittResponse{
-		ID:        newMitt.ID,
-		Author:    newMitt.Author,
-		Content:   newMitt.Content,
-		CreatedAt: newMitt.CreatedAt,
-		UpdatedAt: newMitt.UpdatedAt,
-		Likes:     newMitt.Likes,
+		ID:         newMitt.ID,
+		Author:     newMitt.AuthorID,
+		AuthorName: newMitt.AuthorName,
+		Content:    newMitt.Content,
+		CreatedAt:  newMitt.CreatedAt,
+		UpdatedAt:  newMitt.UpdatedAt,
+		Likes:      newMitt.Likes,
 	}
 	return c.JSON(http.StatusOK, resp)
 }
@@ -335,12 +339,13 @@ func (h *MittHandler) feed(c echo.Context) error {
 	resp := make([]dto.MittResponse, len(mitts))
 	for i, m := range mitts {
 		resp[i] = dto.MittResponse{
-			ID:        m.ID,
-			Author:    m.Author,
-			Content:   m.Content,
-			CreatedAt: m.CreatedAt,
-			UpdatedAt: m.UpdatedAt,
-			Likes:     m.Likes,
+			ID:         m.ID,
+			Author:     m.AuthorID,
+			AuthorName: m.AuthorName,
+			Content:    m.Content,
+			CreatedAt:  m.CreatedAt,
+			UpdatedAt:  m.UpdatedAt,
+			Likes:      m.Likes,
 		}
 	}
 	return c.JSON(http.StatusOK, resp)

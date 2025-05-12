@@ -20,7 +20,7 @@ import (
 
 var mockMittModel = &models.Mitt{
 	ID:        uuid.New(),
-	Author:    mockUserID,
+	AuthorID:  mockUserID,
 	Content:   "hello world",
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),
@@ -118,7 +118,7 @@ func TestMittHandler_CreateMitt(t *testing.T) {
 
 		resp := dto.MittResponse{
 			ID:        mockMittModel.ID,
-			Author:    mockMittModel.Author,
+			Author:    mockMittModel.AuthorID,
 			Content:   mockMittModel.Content,
 			CreatedAt: mockMittModel.CreatedAt,
 			UpdatedAt: mockMittModel.UpdatedAt,
@@ -157,7 +157,7 @@ func TestMittHandler_GetMitt(t *testing.T) {
 
 		resp := dto.MittResponse{
 			ID:        mockMittModel.ID,
-			Author:    mockMittModel.Author,
+			Author:    mockMittModel.AuthorID,
 			Content:   mockMittModel.Content,
 			CreatedAt: mockMittModel.CreatedAt,
 			UpdatedAt: mockMittModel.UpdatedAt,
@@ -181,7 +181,7 @@ func TestMittHandler_GetAllUserMitts(t *testing.T) {
 	handler.Routes(g)
 
 	// Create request
-	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/mitt/user/%s", mockMittModel.Author.String()), nil)
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/mitt/user/%s", mockMittModel.AuthorID.String()), nil)
 	rec := httptest.NewRecorder()
 
 	ctx := e.NewContext(req, rec)
@@ -196,7 +196,7 @@ func TestMittHandler_GetAllUserMitts(t *testing.T) {
 
 		respMitt := dto.MittResponse{
 			ID:        mockMittModel.ID,
-			Author:    mockMittModel.Author,
+			Author:    mockMittModel.AuthorID,
 			Content:   mockMittModel.Content,
 			CreatedAt: mockMittModel.CreatedAt,
 			UpdatedAt: mockMittModel.UpdatedAt,
@@ -237,7 +237,7 @@ func TestMittHandler_UpdateMitt(t *testing.T) {
 
 		resp := dto.MittResponse{
 			ID:        mockMittModel.ID,
-			Author:    mockMittModel.Author,
+			Author:    mockMittModel.AuthorID,
 			Content:   mockMittModel.Content,
 			CreatedAt: mockMittModel.CreatedAt,
 			UpdatedAt: mockMittModel.UpdatedAt,

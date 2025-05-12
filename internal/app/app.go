@@ -89,7 +89,7 @@ func (a *App) Start(ctx context.Context) {
 	// Services
 	userService := user.NewUserService(userRepo, userMetrics)
 	authService := auth.NewAuthService(userRepo, authRepo, userMetrics)
-	mittService := mitt.NewService(mittRepo, mittMetrics)
+	mittService := mitt.NewService(mittRepo, mittMetrics, userRepo)
 
 	// Middlewares
 	authMiddleware := myMiddleware.NewAuthMiddleware(authRepo)

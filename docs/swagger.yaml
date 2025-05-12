@@ -33,6 +33,8 @@ definitions:
     properties:
       author:
         type: string
+      author_name:
+        type: string
       content:
         type: string
       created_at:

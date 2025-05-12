@@ -14,12 +14,13 @@ type MittUpdateRequest struct {
 }
 
 type MittResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Author    uuid.UUID `json:"author"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Likes     int64     `json:"likes"`
+	ID         uuid.UUID `json:"id"`
+	Author     uuid.UUID `json:"author"`
+	AuthorName string    `json:"author_name"`
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	Likes      int64     `json:"likes"`
 }
 
 type MittLikeResponse struct {

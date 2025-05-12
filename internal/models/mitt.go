@@ -10,12 +10,13 @@ type MittCreate struct {
 }
 
 type Mitt struct {
-	ID        uuid.UUID
-	Author    uuid.UUID
-	Content   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Likes     int64
+	ID         uuid.UUID
+	AuthorID   uuid.UUID
+	AuthorName string
+	Content    string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	Likes      int64
 }
 
 type MittUpdate struct {

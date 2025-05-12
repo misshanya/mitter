@@ -10,7 +10,7 @@ import (
 
 var mockMittModel = &models.Mitt{
 	ID:        uuid.New(),
-	Author:    mockUserID,
+	AuthorID:  mockUserID,
 	Content:   "hello world",
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),

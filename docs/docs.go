@@ -1113,6 +1113,9 @@ const docTemplate = `{
                 "author": {
                     "type": "string"
                 },
+                "author_name": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },

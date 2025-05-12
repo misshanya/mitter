@@ -20,7 +20,7 @@ func NewMittRepository(q *storage.Queries) *MittRepository {
 func mittDBToMitt(mittDB storage.Mitt) *models.Mitt {
 	return &models.Mitt{
 		ID:        mittDB.ID,
-		Author:    mittDB.Author,
+		AuthorID:  mittDB.Author,
 		Content:   mittDB.Content,
 		CreatedAt: mittDB.CreatedAt.Time,
 		UpdatedAt: mittDB.UpdatedAt.Time,
