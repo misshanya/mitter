@@ -10,6 +10,7 @@ type Config struct {
 	Server   server   `env:"SERVER" env-required:"true"`
 	Redis    redis    `env:"REDIS" env-required:"true"`
 	Postgres postgres `env:"POSTGRES" env-required:"true"`
+	Mode     string   `env:"MODE" env-default:"PROD"`
 }
 
 type server struct {

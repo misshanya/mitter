@@ -67,6 +67,14 @@ func (a *App) Start(ctx context.Context) {
 	a.e.Use(middleware.Recover())
 	a.e.Use(middleware.Logger())
 
+	if a.cfg.Mode == "DEV" {
+		slog.Info("[!] Running in DEV mode")
+		a.e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: []string{"*"},
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		}))
+	}
+
 	// Swagger
 	a.e.GET("/swagger/*", echoSwagger.WrapHandler)
 
