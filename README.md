@@ -28,6 +28,7 @@ In early development stage
 - Get mitt by id
 - Like mitt
 - Delete mitt
+- Feed
 
 ## API Documentation
 
