@@ -6,14 +6,16 @@ import (
 )
 
 type MittMetrics struct {
-	TotalMitts prometheus.Gauge
-	TotalLikes prometheus.Gauge
+	TotalMitts   prometheus.Gauge
+	TotalLikes   prometheus.Gauge
+	ViewedInFeed prometheus.Counter
 }
 
 func NewMittMetrics() *MittMetrics {
 	return &MittMetrics{
-		TotalMitts: promauto.NewGauge(prometheus.GaugeOpts{Name: "mitter_mitts_total"}),
-		TotalLikes: promauto.NewGauge(prometheus.GaugeOpts{Name: "mitter_mitts_likes_total"}),
+		TotalMitts:   promauto.NewGauge(prometheus.GaugeOpts{Name: "mitter_mitts_total"}),
+		TotalLikes:   promauto.NewGauge(prometheus.GaugeOpts{Name: "mitter_mitts_likes_total"}),
+		ViewedInFeed: promauto.NewCounter(prometheus.CounterOpts{Name: "mitter_mitts_feed_viewed"}),
 	}
 }
 
@@ -31,4 +33,8 @@ func (m *MittMetrics) AddLike() {
 
 func (m *MittMetrics) DeleteLike() {
 	m.TotalLikes.Dec()
+}
+
+func (m *MittMetrics) ViewInFeed(count float64) {
+	m.ViewedInFeed.Add(count)
 }

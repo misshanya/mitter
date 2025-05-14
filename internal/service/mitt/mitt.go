@@ -280,5 +280,7 @@ func (s *Service) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt
 		}
 	}
 
+	go s.mm.ViewInFeed(float64(len(mitts)))
+
 	return mitts, nil
 }

@@ -6,4 +6,6 @@ type MittMetrics interface {
 
 	AddLike()
 	DeleteLike()
+
+	ViewInFeed(count float64)
 }
