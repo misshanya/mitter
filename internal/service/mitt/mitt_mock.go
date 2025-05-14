@@ -209,8 +209,9 @@ func (r *mockUserRepo) GetUserFriends(ctx context.Context, userID uuid.UUID, lim
 
 // Mock metrics
 type mockMittMetrics struct {
-	FakeTotalMitts int
-	FakeTotalLikes int
+	FakeTotalMitts   int
+	FakeTotalLikes   int
+	FakeViewedInFeed float64
 }
 
 func (m *mockMittMetrics) AddMitt() {
@@ -227,4 +228,8 @@ func (m *mockMittMetrics) AddLike() {
 
 func (m *mockMittMetrics) DeleteLike() {
 	m.FakeTotalLikes--
+}
+
+func (m *mockMittMetrics) ViewInFeed(count float64) {
+	m.FakeViewedInFeed += count
 }
