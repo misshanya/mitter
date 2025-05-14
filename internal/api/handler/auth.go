@@ -8,6 +8,7 @@ import (
 	"github.com/misshanya/mitter/internal/api/dto"
 	"github.com/misshanya/mitter/internal/models"
 	"net/http"
+	"time"
 )
 
 type authService interface {
@@ -74,6 +75,14 @@ func (h *AuthHandler) signIn(c echo.Context) error {
 	if err != nil {
 		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
 	}
+
+	cookie := new(http.Cookie)
+	cookie.Name = "token"
+	cookie.Value = token
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie.HttpOnly = true
+	cookie.Path = "/"
+	c.SetCookie(cookie)
 
 	resp := dto.SignInResponse{
 		Token: token,
