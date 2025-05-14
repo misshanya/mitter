@@ -94,8 +94,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 12,
+        "h": 6,
+        "w": 24,
         "x": 0,
         "y": 1
       },
@@ -163,8 +163,8 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 12,
-        "y": 1
+        "x": 0,
+        "y": 7
       },
       "id": 2,
       "options": {
@@ -228,8 +228,8 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 16,
-        "y": 1
+        "x": 4,
+        "y": 7
       },
       "id": 5,
       "options": {
@@ -293,8 +293,8 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 20,
-        "y": 1
+        "x": 8,
+        "y": 7
       },
       "id": 4,
       "options": {
@@ -330,12 +330,82 @@
       "type": "gauge"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PEF57EC2B9BFC4715"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 12,
+        "y": 7
+      },
+      "id": 8,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PEF57EC2B9BFC4715"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "mitter_mitts_feed_viewed",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Viewed in feed",
+      "type": "gauge"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 14
       },
       "id": 7,
       "panels": [],
@@ -372,7 +442,7 @@
         "h": 5,
         "w": 3,
         "x": 0,
-        "y": 9
+        "y": 15
       },
       "id": 3,
       "options": {
