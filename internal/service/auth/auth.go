@@ -162,3 +162,7 @@ func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePasswo
 
 	return nil
 }
+
+func (s *Service) GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error) {
+	return s.ar.GetUserIDByToken(ctx, token)
+}

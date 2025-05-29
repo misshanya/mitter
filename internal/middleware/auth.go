@@ -8,16 +8,16 @@ import (
 	"strings"
 )
 
-type authRepo interface {
+type authService interface {
 	GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error)
 }
 
 type AuthMiddleware struct {
-	authRepo authRepo
+	authService authService
 }
 
-func NewAuthMiddleware(authRepo authRepo) *AuthMiddleware {
-	return &AuthMiddleware{authRepo: authRepo}
+func NewAuthMiddleware(authService authService) *AuthMiddleware {
+	return &AuthMiddleware{authService: authService}
 }
 
 func (a *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
@@ -37,7 +37,7 @@ func (a *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Authorization required")
 		}
 
-		userID, err := a.authRepo.GetUserIDByToken(c.Request().Context(), token)
+		userID, err := a.authService.GetUserIDByToken(c.Request().Context(), token)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
 		}
