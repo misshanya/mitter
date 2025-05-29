@@ -92,6 +92,14 @@ func (s *Service) FollowUser(ctx context.Context, followerID uuid.UUID, followee
 		}
 	}
 
+	// Check if followee is not follower
+	if followerID == followeeID {
+		return &models.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "You can't follow yourself",
+		}
+	}
+
 	err = s.ur.FollowUser(ctx, followerID, followeeID)
 	if err != nil {
 		if pgutil.IsUniqueViolation(err) {
