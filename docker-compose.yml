@@ -59,7 +59,7 @@ services:
       - mitter
 
   nginx:
-    container_name: nginx
+    container_name: mitter-nginx
     image: nginx:alpine
     volumes:
       - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
