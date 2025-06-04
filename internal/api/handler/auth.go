@@ -71,9 +71,9 @@ func (h *AuthHandler) signIn(c echo.Context) error {
 		Password: req.Password,
 	}
 
-	token, err := h.as.SignIn(ctx, creds)
-	if err != nil {
-		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
+	token, httpErr := h.as.SignIn(ctx, creds)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 
 	cookie := new(http.Cookie)
@@ -122,9 +122,9 @@ func (h *AuthHandler) signUp(c echo.Context) error {
 		Name:     req.Name,
 		Password: req.Password,
 	}
-	id, err := h.as.SignUp(ctx, user)
-	if err != nil {
-		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
+	id, httpErr := h.as.SignUp(ctx, user)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 
 	resp := dto.SignUpResponse{
@@ -166,9 +166,9 @@ func (h *AuthHandler) changePassword(c echo.Context) error {
 		OldPassword: req.OldPassword,
 		NewPassword: req.NewPassword,
 	}
-	err := h.as.ChangePassword(ctx, userID, changePwd)
-	if err != nil {
-		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
+	httpErr := h.as.ChangePassword(ctx, userID, changePwd)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 
 	return c.NoContent(http.StatusOK)

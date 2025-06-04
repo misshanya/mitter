@@ -86,9 +86,9 @@ func (h *MittHandler) createMitt(c echo.Context) error {
 	mittCreate := &models.MittCreate{
 		Content: req.Content,
 	}
-	mitt, err := h.ms.CreateMitt(ctx, userID, mittCreate)
-	if err != nil {
-		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
+	mitt, httpErr := h.ms.CreateMitt(ctx, userID, mittCreate)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 
 	resp := dto.MittResponse{

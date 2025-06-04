@@ -67,9 +67,9 @@ func (h *UserHandler) getMe(c echo.Context) error {
 
 	userID := c.Get("userID").(uuid.UUID)
 
-	user, err := h.service.GetUser(ctx, userID)
-	if err != nil {
-		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
+	user, httpErr := h.service.GetUser(ctx, userID)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 
 	resp := dto.UserResponse{
@@ -98,9 +98,9 @@ func (h *UserHandler) deleteUser(c echo.Context) error {
 
 	userID := c.Get("userID").(uuid.UUID)
 
-	err := h.service.DeleteUser(ctx, userID)
-	if err != nil {
-		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
+	httpErr := h.service.DeleteUser(ctx, userID)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 
 	return c.NoContent(http.StatusNoContent)
@@ -138,9 +138,9 @@ func (h *UserHandler) updateUser(c echo.Context) error {
 	user := &models.UserUpdate{
 		Name: req.Name,
 	}
-	err := h.service.UpdateUser(ctx, userID, user)
-	if err != nil {
-		return c.JSON(err.Code, dto.HTTPError{Message: err.Message})
+	httpErr := h.service.UpdateUser(ctx, userID, user)
+	if httpErr != nil {
+		return c.JSON(httpErr.Code, dto.HTTPError{Message: httpErr.Message})
 	}
 
 	return c.NoContent(http.StatusOK)
