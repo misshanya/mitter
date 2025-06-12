@@ -99,20 +99,48 @@ func (r *UserRepository) UnfollowUser(ctx context.Context, followerID uuid.UUID,
 	})
 }
 
-func (r *UserRepository) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
-	return r.queries.GetUserFollows(ctx, storage.GetUserFollowsParams{
+func (r *UserRepository) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, error) {
+	rows, err := r.queries.GetUserFollows(ctx, storage.GetUserFollowsParams{
 		Limit:      limit,
 		Offset:     offset,
 		FollowerID: followerID,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*models.User, len(rows))
+	for i, row := range rows {
+		users[i] = &models.User{
+			ID:    row.ID,
+			Login: row.Login,
+			Name:  row.Name,
+		}
+	}
+
+	return users, nil
 }
 
-func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
-	return r.queries.GetUserFollowers(ctx, storage.GetUserFollowersParams{
+func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, error) {
+	rows, err := r.queries.GetUserFollowers(ctx, storage.GetUserFollowersParams{
 		Limit:      limit,
 		Offset:     offset,
 		FolloweeID: followeeID,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*models.User, len(rows))
+	for i, row := range rows {
+		users[i] = &models.User{
+			ID:    row.ID,
+			Login: row.Login,
+			Name:  row.Name,
+		}
+	}
+
+	return users, nil
 }
 
 func (r *UserRepository) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {

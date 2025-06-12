@@ -103,8 +103,9 @@ func (q *Queries) GetUserByLogin(ctx context.Context, login string) (User, error
 }
 
 const getUserFollowers = `-- name: GetUserFollowers :many
-SELECT follower_id FROM users_follows
-WHERE followee_id = $3
+SELECT u.id, u.login, u.name, u.password FROM users as u
+JOIN users_follows AS f ON f.follower_id = u.id
+WHERE f.followee_id = $3
 LIMIT $1 OFFSET $2
 `
 
@@ -114,19 +115,24 @@ type GetUserFollowersParams struct {
 	FolloweeID uuid.UUID
 }
 
-func (q *Queries) GetUserFollowers(ctx context.Context, arg GetUserFollowersParams) ([]uuid.UUID, error) {
+func (q *Queries) GetUserFollowers(ctx context.Context, arg GetUserFollowersParams) ([]User, error) {
 	rows, err := q.db.Query(ctx, getUserFollowers, arg.Limit, arg.Offset, arg.FolloweeID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []User
 	for rows.Next() {
-		var follower_id uuid.UUID
-		if err := rows.Scan(&follower_id); err != nil {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Login,
+			&i.Name,
+			&i.Password,
+		); err != nil {
 			return nil, err
 		}
-		items = append(items, follower_id)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -135,8 +141,9 @@ func (q *Queries) GetUserFollowers(ctx context.Context, arg GetUserFollowersPara
 }
 
 const getUserFollows = `-- name: GetUserFollows :many
-SELECT followee_id FROM users_follows
-WHERE follower_id = $3
+SELECT u.id, u.login, u.name, u.password FROM users as u
+JOIN users_follows AS f ON f.followee_id = u.id
+WHERE f.follower_id = $3
 LIMIT $1 OFFSET $2
 `
 
@@ -146,19 +153,24 @@ type GetUserFollowsParams struct {
 	FollowerID uuid.UUID
 }
 
-func (q *Queries) GetUserFollows(ctx context.Context, arg GetUserFollowsParams) ([]uuid.UUID, error) {
+func (q *Queries) GetUserFollows(ctx context.Context, arg GetUserFollowsParams) ([]User, error) {
 	rows, err := q.db.Query(ctx, getUserFollows, arg.Limit, arg.Offset, arg.FollowerID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []User
 	for rows.Next() {
-		var followee_id uuid.UUID
-		if err := rows.Scan(&followee_id); err != nil {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Login,
+			&i.Name,
+			&i.Password,
+		); err != nil {
 			return nil, err
 		}
-		items = append(items, followee_id)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

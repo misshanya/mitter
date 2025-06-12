@@ -41,13 +41,15 @@ WHERE follower_id = @follower_id AND
       followee_id = @followee_id;
 
 -- name: GetUserFollows :many
-SELECT followee_id FROM users_follows
-WHERE follower_id = @follower_id
+SELECT u.* FROM users as u
+JOIN users_follows AS f ON f.followee_id = u.id
+WHERE f.follower_id = @follower_id
 LIMIT $1 OFFSET $2;
 
 -- name: GetUserFollowers :many
-SELECT follower_id FROM users_follows
-WHERE followee_id = @followee_id
+SELECT u.* FROM users as u
+JOIN users_follows AS f ON f.follower_id = u.id
+WHERE f.followee_id = @followee_id
 LIMIT $1 OFFSET $2;
 
 -- name: GetUserFriends :many

@@ -131,8 +131,7 @@ func (s *Service) UnfollowUser(ctx context.Context, followerID uuid.UUID, follow
 }
 
 func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
-	// Get user follows (ids)
-	usersIDs, err := s.ur.GetUserFollows(ctx, followerID, limit, offset)
+	users, err := s.ur.GetUserFollows(ctx, followerID, limit, offset)
 	if err != nil {
 		slog.Error("error getting user follows", slog.Any("err", err))
 		return nil, &models.HTTPError{
@@ -141,46 +140,17 @@ func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID, limi
 		}
 	}
 
-	// Get users models from ids
-	users := make([]*models.User, len(usersIDs))
-	for i, id := range usersIDs {
-		user, err := s.ur.GetUserByID(ctx, id)
-		if err != nil {
-			slog.Error("error getting user follows (getting user from db)", slog.Any("err", err))
-			return nil, &models.HTTPError{
-				Code:    http.StatusInternalServerError,
-				Message: "Internal Server Error",
-			}
-		}
-		users[i] = user
-	}
-
 	return users, nil
 }
 
 func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
-	// Get user followers (ids)
-	usersIDs, err := s.ur.GetUserFollowers(ctx, followeeID, limit, offset)
+	users, err := s.ur.GetUserFollowers(ctx, followeeID, limit, offset)
 	if err != nil {
 		slog.Error("error getting user followers", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
 		}
-	}
-
-	// Get users models from ids
-	users := make([]*models.User, len(usersIDs))
-	for i, id := range usersIDs {
-		user, err := s.ur.GetUserByID(ctx, id)
-		if err != nil {
-			slog.Error("error getting user followers (getting user from db)", slog.Any("err", err))
-			return nil, &models.HTTPError{
-				Code:    http.StatusInternalServerError,
-				Message: "Internal Server Error",
-			}
-		}
-		users[i] = user
 	}
 
 	return users, nil
