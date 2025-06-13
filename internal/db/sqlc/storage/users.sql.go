@@ -179,8 +179,9 @@ func (q *Queries) GetUserFollows(ctx context.Context, arg GetUserFollowsParams) 
 }
 
 const getUserFriends = `-- name: GetUserFriends :many
-SELECT uf1.followee_id
-FROM users_follows uf1
+SELECT u.id, u.login, u.name, u.password
+FROM users u
+JOIN users_follows uf1 ON uf1.followee_id = u.id
 JOIN users_follows uf2 ON uf1.follower_id = uf2.followee_id AND uf1.followee_id = uf2.follower_id
 WHERE uf1.follower_id = $3
 LIMIT $1 OFFSET $2
@@ -192,19 +193,24 @@ type GetUserFriendsParams struct {
 	ID     uuid.UUID
 }
 
-func (q *Queries) GetUserFriends(ctx context.Context, arg GetUserFriendsParams) ([]uuid.UUID, error) {
+func (q *Queries) GetUserFriends(ctx context.Context, arg GetUserFriendsParams) ([]User, error) {
 	rows, err := q.db.Query(ctx, getUserFriends, arg.Limit, arg.Offset, arg.ID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []User
 	for rows.Next() {
-		var followee_id uuid.UUID
-		if err := rows.Scan(&followee_id); err != nil {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Login,
+			&i.Name,
+			&i.Password,
+		); err != nil {
 			return nil, err
 		}
-		items = append(items, followee_id)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

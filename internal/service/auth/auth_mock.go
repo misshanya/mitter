@@ -123,13 +123,13 @@ func (r *mockUserRepo) GetUserFollowers(ctx context.Context, followeeID uuid.UUI
 	return []*models.User{&testUser}, nil
 }
 
-func (r *mockUserRepo) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
+func (r *mockUserRepo) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, error) {
 	_ = ctx
 	_ = userID
 	_ = limit
 	_ = offset
 
-	return []uuid.UUID{testUserID}, nil
+	return []*models.User{&testUser}, nil
 }
 
 // Mock user metrics

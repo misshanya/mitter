@@ -157,28 +157,13 @@ func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, li
 }
 
 func (s *Service) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
-	// Get user friends (ids)
-	usersIDs, err := s.ur.GetUserFriends(ctx, userID, limit, offset)
+	users, err := s.ur.GetUserFriends(ctx, userID, limit, offset)
 	if err != nil {
 		slog.Error("error getting user friends", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
 		}
-	}
-
-	// Get users models from ids
-	users := make([]*models.User, len(usersIDs))
-	for i, id := range usersIDs {
-		user, err := s.ur.GetUserByID(ctx, id)
-		if err != nil {
-			slog.Error("error getting user friends (getting user from db)", slog.Any("err", err))
-			return nil, &models.HTTPError{
-				Code:    http.StatusInternalServerError,
-				Message: "Internal Server Error",
-			}
-		}
-		users[i] = user
 	}
 
 	return users, nil

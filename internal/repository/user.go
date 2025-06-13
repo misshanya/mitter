@@ -143,10 +143,24 @@ func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.U
 	return users, nil
 }
 
-func (r *UserRepository) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
-	return r.queries.GetUserFriends(ctx, storage.GetUserFriendsParams{
+func (r *UserRepository) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, error) {
+	rows, err := r.queries.GetUserFriends(ctx, storage.GetUserFriendsParams{
 		ID:     userID,
 		Limit:  limit,
 		Offset: offset,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	friends := make([]*models.User, len(rows))
+	for i, row := range rows {
+		friends[i] = &models.User{
+			ID:    row.ID,
+			Login: row.Login,
+			Name:  row.Name,
+		}
+	}
+
+	return friends, nil
 }

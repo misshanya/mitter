@@ -202,13 +202,15 @@ func (r *mockUserRepo) GetUserFollowers(ctx context.Context, followeeID uuid.UUI
 	}}, nil
 }
 
-func (r *mockUserRepo) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]uuid.UUID, error) {
+func (r *mockUserRepo) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, error) {
 	_ = ctx
 	_ = userID
 	_ = limit
 	_ = offset
 
-	return []uuid.UUID{mockUserID}, nil
+	return []*models.User{&models.User{
+		ID: mockUserID,
+	}}, nil
 }
 
 // Mock metrics
