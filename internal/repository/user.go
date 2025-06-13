@@ -16,6 +16,15 @@ func NewUserRepository(q *storage.Queries) *UserRepository {
 	return &UserRepository{queries: q}
 }
 
+func mapToUser(user storage.User) *models.User {
+	return &models.User{
+		ID:             user.ID,
+		Login:          user.Login,
+		Name:           user.Name,
+		HashedPassword: user.Password,
+	}
+}
+
 func (r *UserRepository) CreateUser(ctx context.Context, user *models.UserCreate) (uuid.UUID, error) {
 	return r.queries.CreateUser(ctx, storage.CreateUserParams{
 		Login:          user.Login,
@@ -30,15 +39,7 @@ func (r *UserRepository) GetUserByLogin(ctx context.Context, login string) (*mod
 		return nil, err
 	}
 
-	// Convert db user to my model
-	user := &models.User{
-		ID:             userDB.ID,
-		Login:          userDB.Login,
-		Name:           userDB.Name,
-		HashedPassword: userDB.Password,
-	}
-
-	return user, nil
+	return mapToUser(userDB), nil
 }
 
 func (r *UserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
@@ -47,15 +48,7 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*models
 		return nil, err
 	}
 
-	// Convert db user to my model
-	user := &models.User{
-		ID:             userDB.ID,
-		Login:          userDB.Login,
-		Name:           userDB.Name,
-		HashedPassword: userDB.Password,
-	}
-
-	return user, nil
+	return mapToUser(userDB), nil
 }
 
 func (r *UserRepository) DeleteUser(ctx context.Context, id uuid.UUID) error {
@@ -111,11 +104,7 @@ func (r *UserRepository) GetUserFollows(ctx context.Context, followerID uuid.UUI
 
 	users := make([]*models.User, len(rows))
 	for i, row := range rows {
-		users[i] = &models.User{
-			ID:    row.ID,
-			Login: row.Login,
-			Name:  row.Name,
-		}
+		users[i] = mapToUser(row)
 	}
 
 	return users, nil
@@ -133,11 +122,7 @@ func (r *UserRepository) GetUserFollowers(ctx context.Context, followeeID uuid.U
 
 	users := make([]*models.User, len(rows))
 	for i, row := range rows {
-		users[i] = &models.User{
-			ID:    row.ID,
-			Login: row.Login,
-			Name:  row.Name,
-		}
+		users[i] = mapToUser(row)
 	}
 
 	return users, nil
@@ -155,11 +140,7 @@ func (r *UserRepository) GetUserFriends(ctx context.Context, userID uuid.UUID, l
 
 	friends := make([]*models.User, len(rows))
 	for i, row := range rows {
-		friends[i] = &models.User{
-			ID:    row.ID,
-			Login: row.Login,
-			Name:  row.Name,
-		}
+		friends[i] = mapToUser(row)
 	}
 
 	return friends, nil
