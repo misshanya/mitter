@@ -27,12 +27,12 @@ type postgres struct {
 	URL string `env:"PG_URL" env-required:"true"`
 }
 
-func NewConfig() *Config {
+func NewConfig(logger *slog.Logger) *Config {
 	var cfg Config
 
 	err := cleanenv.ReadEnv(&cfg)
 	if err != nil {
-		slog.Error("failed to read config", slog.Any("err", err))
+		logger.Error("failed to read config", slog.Any("err", err))
 		os.Exit(1)
 	}
 

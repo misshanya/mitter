@@ -29,10 +29,11 @@ import (
 type App struct {
 	cfg *config.Config
 	e   *echo.Echo
+	l   *slog.Logger
 }
 
-func NewApp(cfg *config.Config) *App {
-	return &App{cfg: cfg}
+func NewApp(cfg *config.Config, logger *slog.Logger) *App {
+	return &App{cfg: cfg, l: logger}
 }
 
 func (a *App) Start(ctx context.Context) {
@@ -44,19 +45,19 @@ func (a *App) Start(ctx context.Context) {
 
 	err := rdb.Ping(ctx).Err()
 	if err != nil {
-		slog.Error("failed to connect to redis")
+		a.l.Error("failed to connect to redis")
 		os.Exit(1)
 	}
 
 	// Init db connection
 	conn, err := initDB(ctx, a.cfg.Postgres.URL)
 	if err != nil {
-		slog.Error("failed to connect to database")
+		a.l.Error("failed to connect to database")
 		os.Exit(1)
 	}
 
 	if err := db.Migrate(sql.OpenDB(stdlib.GetConnector(*conn.Config().ConnConfig))); err != nil {
-		slog.Error("failed to migrate database", slog.Any("err", err))
+		a.l.Error("failed to migrate database", slog.Any("err", err))
 		os.Exit(1)
 	}
 
@@ -68,7 +69,7 @@ func (a *App) Start(ctx context.Context) {
 	a.e.Use(middleware.Logger())
 
 	if a.cfg.Mode == "DEV" {
-		slog.Info("[!] Running in DEV mode")
+		a.l.Info("[!] Running in DEV mode")
 		a.e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowOrigins: []string{"*"},
 			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
@@ -95,9 +96,9 @@ func (a *App) Start(ctx context.Context) {
 	mittRepo := repository.NewMittRepository(queries)
 
 	// Services
-	userService := user.NewUserService(userRepo, userMetrics)
-	authService := auth.NewAuthService(userRepo, authRepo, userMetrics)
-	mittService := mitt.NewService(mittRepo, mittMetrics, userRepo)
+	userService := user.NewUserService(userRepo, userMetrics, a.l)
+	authService := auth.NewAuthService(userRepo, authRepo, userMetrics, a.l)
+	mittService := mitt.NewService(mittRepo, mittMetrics, userRepo, a.l)
 
 	// Middlewares
 	authMiddleware := myMiddleware.NewAuthMiddleware(authRepo)

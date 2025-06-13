@@ -18,10 +18,11 @@ type Service struct {
 	ur models.UserRepository
 	ar models.AuthRepository
 	um models.UserMetrics
+	l  *slog.Logger
 }
 
-func NewAuthService(ur models.UserRepository, ar models.AuthRepository, um models.UserMetrics) *Service {
-	return &Service{ur: ur, ar: ar, um: um}
+func NewAuthService(ur models.UserRepository, ar models.AuthRepository, um models.UserMetrics, l *slog.Logger) *Service {
+	return &Service{ur: ur, ar: ar, um: um, l: l}
 }
 
 func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *models.HTTPError) {
@@ -35,6 +36,7 @@ func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *mod
 			}
 		}
 
+		s.l.Error("failed get user by login", slog.Any("error", err), slog.String("login", creds.Login))
 		return "", &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -44,7 +46,7 @@ func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *mod
 	// Check password
 	ok, err := crypto.ComparePasswordAndHash(creds.Password, user.HashedPassword)
 	if err != nil {
-		slog.Error("error comparing password while signing in", slog.Any("err", err))
+		s.l.Error("error comparing password while signing in", slog.Any("err", err))
 		return "", &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -65,7 +67,7 @@ func (s *Service) SignIn(ctx context.Context, creds models.SignIn) (string, *mod
 		Token:  token,
 		UserID: user.ID,
 	}); err != nil {
-		slog.Error("error saving token to redis", slog.Any("err", err))
+		s.l.Error("error saving token to redis", slog.Any("err", err))
 		return "", &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -79,7 +81,7 @@ func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUI
 	// Hash password and store it in user.HashedPassword
 	hashedPassword, err := crypto.GenerateHash(user.Password)
 	if err != nil {
-		slog.Error("error hashing password", slog.Any("err", err))
+		s.l.Error("error hashing password", slog.Any("err", err))
 		return uuid.Nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -90,13 +92,13 @@ func (s *Service) SignUp(ctx context.Context, user *models.UserCreate) (uuid.UUI
 	id, err := s.ur.CreateUser(ctx, user)
 	if err != nil {
 		if pgutil.IsUniqueViolation(err) {
-			slog.Error("user already exists", slog.String("login", user.Login))
+			s.l.Error("user already exists", slog.String("login", user.Login))
 			return uuid.Nil, &models.HTTPError{
 				Code:    http.StatusConflict,
 				Message: "User already exists",
 			}
 		}
-		slog.Error("error creating user", slog.Any("err", err))
+		s.l.Error("error creating user", slog.Any("err", err))
 		return uuid.Nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -121,7 +123,7 @@ func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePasswo
 			}
 		}
 
-		slog.Error("error getting current password hash", slog.Any("err", err))
+		s.l.Error("error getting current password hash", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -130,7 +132,7 @@ func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePasswo
 
 	ok, err := crypto.ComparePasswordAndHash(changePassword.OldPassword, currentPwdHash)
 	if err != nil {
-		slog.Error("error comparing old password", slog.Any("err", err))
+		s.l.Error("error comparing old password", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -146,6 +148,7 @@ func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePasswo
 	// Hash new password
 	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(changePassword.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
+		s.l.Error("failed to hash password", slog.Any("error", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -154,6 +157,7 @@ func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePasswo
 
 	// Write new hash in db
 	if err := s.ur.ChangePassword(ctx, id, string(newPasswordHash)); err != nil {
+		s.l.Error("failed to change password", slog.Any("error", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",

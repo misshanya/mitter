@@ -17,8 +17,9 @@ import (
 // @host		localhost:8080
 // @BasePath	/api/v1
 func main() {
-	cfg := config.NewConfig()
-	server := app.NewApp(cfg)
+	logger := setupLogger()
+	cfg := config.NewConfig(logger)
+	server := app.NewApp(cfg, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -33,4 +34,14 @@ func main() {
 	if err := server.Stop(ctx); err != nil {
 		slog.Error("failed to stop server", slog.Any("err", err))
 	}
+}
+
+func setupLogger() *slog.Logger {
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelDebug,
+	})
+
+	logger := slog.New(handler)
+	return logger
 }

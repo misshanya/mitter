@@ -14,12 +14,14 @@ import (
 type Service struct {
 	ur models.UserRepository
 	um models.UserMetrics
+	l  *slog.Logger
 }
 
-func NewUserService(repo models.UserRepository, metrics models.UserMetrics) *Service {
+func NewUserService(repo models.UserRepository, metrics models.UserMetrics, l *slog.Logger) *Service {
 	return &Service{
 		ur: repo,
 		um: metrics,
+		l:  l,
 	}
 }
 
@@ -34,7 +36,7 @@ func (s *Service) GetUser(ctx context.Context, id uuid.UUID) (*models.User, *mod
 			}
 		}
 
-		slog.Error("error getting user", slog.Any("err", err))
+		s.l.Error("error getting user", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -48,7 +50,7 @@ func (s *Service) DeleteUser(ctx context.Context, id uuid.UUID) *models.HTTPErro
 	// note: handle error if user not exists
 	err := s.ur.DeleteUser(ctx, id)
 	if err != nil {
-		slog.Error("error deleting user", slog.Any("err", err))
+		s.l.Error("error deleting user", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -64,7 +66,7 @@ func (s *Service) DeleteUser(ctx context.Context, id uuid.UUID) *models.HTTPErro
 func (s *Service) UpdateUser(ctx context.Context, id uuid.UUID, user *models.UserUpdate) *models.HTTPError {
 	err := s.ur.UpdateUser(ctx, id, user)
 	if err != nil {
-		slog.Error("error updating user", slog.Any("err", err))
+		s.l.Error("error updating user", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -85,7 +87,7 @@ func (s *Service) FollowUser(ctx context.Context, followerID uuid.UUID, followee
 			}
 		}
 
-		slog.Error("error getting user", slog.Any("err", err))
+		s.l.Error("error getting user", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -109,7 +111,7 @@ func (s *Service) FollowUser(ctx context.Context, followerID uuid.UUID, followee
 			}
 		}
 
-		slog.Error("error following user", slog.Any("err", err))
+		s.l.Error("error following user", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -121,7 +123,7 @@ func (s *Service) FollowUser(ctx context.Context, followerID uuid.UUID, followee
 func (s *Service) UnfollowUser(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) *models.HTTPError {
 	err := s.ur.UnfollowUser(ctx, followerID, followeeID)
 	if err != nil {
-		slog.Error("error unfollowing user", slog.Any("err", err))
+		s.l.Error("error unfollowing user", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -133,7 +135,7 @@ func (s *Service) UnfollowUser(ctx context.Context, followerID uuid.UUID, follow
 func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	users, err := s.ur.GetUserFollows(ctx, followerID, limit, offset)
 	if err != nil {
-		slog.Error("error getting user follows", slog.Any("err", err))
+		s.l.Error("error getting user follows", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -146,7 +148,7 @@ func (s *Service) GetUserFollows(ctx context.Context, followerID uuid.UUID, limi
 func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	users, err := s.ur.GetUserFollowers(ctx, followeeID, limit, offset)
 	if err != nil {
-		slog.Error("error getting user followers", slog.Any("err", err))
+		s.l.Error("error getting user followers", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
@@ -159,7 +161,7 @@ func (s *Service) GetUserFollowers(ctx context.Context, followeeID uuid.UUID, li
 func (s *Service) GetUserFriends(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.User, *models.HTTPError) {
 	users, err := s.ur.GetUserFriends(ctx, userID, limit, offset)
 	if err != nil {
-		slog.Error("error getting user friends", slog.Any("err", err))
+		s.l.Error("error getting user friends", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",

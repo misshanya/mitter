@@ -15,16 +15,17 @@ type Service struct {
 	mr models.MittRepository
 	mm models.MittMetrics
 	ur models.UserRepository
+	l  *slog.Logger
 }
 
-func NewService(mr models.MittRepository, mm models.MittMetrics, ur models.UserRepository) *Service {
-	return &Service{mr: mr, mm: mm, ur: ur}
+func NewService(mr models.MittRepository, mm models.MittMetrics, ur models.UserRepository, l *slog.Logger) *Service {
+	return &Service{mr: mr, mm: mm, ur: ur, l: l}
 }
 
 func (s *Service) CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models.MittCreate) (*models.Mitt, *models.HTTPError) {
 	newMitt, err := s.mr.CreateMitt(ctx, userID, mitt)
 	if err != nil {
-		slog.Error("error creating mitt", slog.Any("err", err))
+		s.l.Error("error creating mitt", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -46,7 +47,7 @@ func (s *Service) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, *mod
 				Message: "Mitt not found",
 			}
 		}
-		slog.Error("error getting mitt", slog.Any("err", err))
+		s.l.Error("error getting mitt", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -65,7 +66,7 @@ func (s *Service) GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, 
 				Message: "Mitts not found",
 			}
 		}
-		slog.Error("error getting mitts", slog.Any("err", err))
+		s.l.Error("error getting mitts", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -97,7 +98,7 @@ func (s *Service) UpdateMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 				Message: "Mitt not found",
 			}
 		}
-		slog.Error("error updating mitt", slog.Any("err", err))
+		s.l.Error("error updating mitt", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -123,7 +124,7 @@ func (s *Service) DeleteMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 
 	err := s.mr.DeleteMitt(ctx, mittID)
 	if err != nil {
-		slog.Error("error deleting mitt", slog.Any("err", err))
+		s.l.Error("error deleting mitt", slog.Any("err", err))
 		return &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -141,7 +142,7 @@ func (s *Service) DeleteMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, *models.HTTPError) {
 	isAlreadyLiked, err := s.mr.IsMittLikedByUser(ctx, userID, mittID)
 	if err != nil {
-		slog.Error("error getting isAlreadyLiked", slog.Any("err", err))
+		s.l.Error("error getting isAlreadyLiked", slog.Any("err", err))
 		return false, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -150,7 +151,7 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 
 	if !isAlreadyLiked {
 		if err := s.mr.LikeMitt(ctx, userID, mittID); err != nil {
-			slog.Error("error liking mitt", slog.Any("err", err))
+			s.l.Error("error liking mitt", slog.Any("err", err))
 			return false, &models.HTTPError{
 				Code:    http.StatusInternalServerError,
 				Message: "Internal server error",
@@ -164,7 +165,7 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 	}
 
 	if err := s.mr.DeleteMittLike(ctx, userID, mittID); err != nil {
-		slog.Error("error deleting mitt like", slog.Any("err", err))
+		s.l.Error("error deleting mitt like", slog.Any("err", err))
 		return false, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -180,7 +181,7 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 func (s *Service) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, *models.HTTPError) {
 	mitts, err := s.mr.Feed(ctx, limit, offset)
 	if err != nil {
-		slog.Error("failed to get feed", slog.Any("err", err))
+		s.l.Error("failed to get feed", slog.Any("err", err))
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
