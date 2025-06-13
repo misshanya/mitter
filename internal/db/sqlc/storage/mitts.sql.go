@@ -9,15 +9,30 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createMitt = `-- name: CreateMitt :one
-INSERT INTO mitts (
-    author, content
-) VALUES (
-    $1, $2
+WITH inserted AS (
+    INSERT INTO mitts (
+        author, content
+    ) VALUES (
+        $1, $2
+    )
+    RETURNING id, author, content, created_at, updated_at
 )
-RETURNING id, author, content, created_at, updated_at
+SELECT i.id, i.author, i.content, i.created_at, i.updated_at, us.name AS author_name, COUNT(ms.id) AS likes_count
+FROM inserted AS i
+LEFT JOIN mitts_likes AS ms ON ms.mitt_id = i.id
+LEFT JOIN users AS us ON us.id = i.author
+GROUP BY
+    i.id,
+    i.author,
+    i.content,
+    i.created_at,
+    i.updated_at,
+    us.name
+LIMIT 1
 `
 
 type CreateMittParams struct {
@@ -25,15 +40,27 @@ type CreateMittParams struct {
 	Content string
 }
 
-func (q *Queries) CreateMitt(ctx context.Context, arg CreateMittParams) (Mitt, error) {
+type CreateMittRow struct {
+	ID         uuid.UUID
+	Author     uuid.UUID
+	Content    string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	AuthorName pgtype.Text
+	LikesCount int64
+}
+
+func (q *Queries) CreateMitt(ctx context.Context, arg CreateMittParams) (CreateMittRow, error) {
 	row := q.db.QueryRow(ctx, createMitt, arg.Author, arg.Content)
-	var i Mitt
+	var i CreateMittRow
 	err := row.Scan(
 		&i.ID,
 		&i.Author,
 		&i.Content,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AuthorName,
+		&i.LikesCount,
 	)
 	return i, err
 }
@@ -64,7 +91,17 @@ func (q *Queries) DeleteMittLike(ctx context.Context, arg DeleteMittLikeParams) 
 }
 
 const feed = `-- name: Feed :many
-SELECT id, author, content, created_at, updated_at FROM mitts
+SELECT m.id, m.author, m.content, m.created_at, m.updated_at, us.name AS author_name, COUNT(ms.id) AS likes_count
+FROM mitts AS m
+LEFT JOIN mitts_likes AS ms ON ms.mitt_id = m.id
+LEFT JOIN users AS us ON us.id = m.author
+GROUP BY
+    m.id,
+    m.author,
+    m.content,
+    m.created_at,
+    m.updated_at,
+    us.name
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -74,21 +111,33 @@ type FeedParams struct {
 	Offset int32
 }
 
-func (q *Queries) Feed(ctx context.Context, arg FeedParams) ([]Mitt, error) {
+type FeedRow struct {
+	ID         uuid.UUID
+	Author     uuid.UUID
+	Content    string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	AuthorName pgtype.Text
+	LikesCount int64
+}
+
+func (q *Queries) Feed(ctx context.Context, arg FeedParams) ([]FeedRow, error) {
 	rows, err := q.db.Query(ctx, feed, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Mitt
+	var items []FeedRow
 	for rows.Next() {
-		var i Mitt
+		var i FeedRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.AuthorName,
+			&i.LikesCount,
 		); err != nil {
 			return nil, err
 		}
@@ -101,9 +150,19 @@ func (q *Queries) Feed(ctx context.Context, arg FeedParams) ([]Mitt, error) {
 }
 
 const getAllUserMitts = `-- name: GetAllUserMitts :many
-SELECT id, author, content, created_at, updated_at FROM mitts
-WHERE author = $3
-ORDER BY created_at
+SELECT m.id, m.author, m.content, m.created_at, m.updated_at, us.name AS author_name, COUNT(ms.id) AS likes_count
+FROM mitts AS m
+LEFT JOIN mitts_likes AS ms ON ms.mitt_id = m.id
+LEFT JOIN users AS us ON us.id = m.author
+WHERE m.author = $3
+GROUP BY
+    m.id,
+    m.author,
+    m.content,
+    m.created_at,
+    m.updated_at,
+    us.name
+ORDER BY m.created_at
 LIMIT $1 OFFSET $2
 `
 
@@ -113,21 +172,33 @@ type GetAllUserMittsParams struct {
 	Author uuid.UUID
 }
 
-func (q *Queries) GetAllUserMitts(ctx context.Context, arg GetAllUserMittsParams) ([]Mitt, error) {
+type GetAllUserMittsRow struct {
+	ID         uuid.UUID
+	Author     uuid.UUID
+	Content    string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	AuthorName pgtype.Text
+	LikesCount int64
+}
+
+func (q *Queries) GetAllUserMitts(ctx context.Context, arg GetAllUserMittsParams) ([]GetAllUserMittsRow, error) {
 	rows, err := q.db.Query(ctx, getAllUserMitts, arg.Limit, arg.Offset, arg.Author)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Mitt
+	var items []GetAllUserMittsRow
 	for rows.Next() {
-		var i Mitt
+		var i GetAllUserMittsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.AuthorName,
+			&i.LikesCount,
 		); err != nil {
 			return nil, err
 		}
@@ -140,34 +211,44 @@ func (q *Queries) GetAllUserMitts(ctx context.Context, arg GetAllUserMittsParams
 }
 
 const getMitt = `-- name: GetMitt :one
-SELECT id, author, content, created_at, updated_at FROM mitts
-WHERE id = $1
+SELECT m.id, m.author, m.content, m.created_at, m.updated_at, us.name AS author_name, COUNT(ms.id) AS likes_count
+FROM mitts AS m
+LEFT JOIN mitts_likes AS ms ON ms.mitt_id = m.id
+LEFT JOIN users AS us ON us.id = m.author
+WHERE m.id = $1
+GROUP BY
+    m.id,
+    m.author,
+    m.content,
+    m.created_at,
+    m.updated_at,
+    us.name
 LIMIT 1
 `
 
-func (q *Queries) GetMitt(ctx context.Context, id uuid.UUID) (Mitt, error) {
+type GetMittRow struct {
+	ID         uuid.UUID
+	Author     uuid.UUID
+	Content    string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	AuthorName pgtype.Text
+	LikesCount int64
+}
+
+func (q *Queries) GetMitt(ctx context.Context, id uuid.UUID) (GetMittRow, error) {
 	row := q.db.QueryRow(ctx, getMitt, id)
-	var i Mitt
+	var i GetMittRow
 	err := row.Scan(
 		&i.ID,
 		&i.Author,
 		&i.Content,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AuthorName,
+		&i.LikesCount,
 	)
 	return i, err
-}
-
-const getMittLikesCount = `-- name: GetMittLikesCount :one
-SELECT COUNT(*) FROM mitts_likes
-WHERE mitt_id = $1
-`
-
-func (q *Queries) GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, getMittLikesCount, mittID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
 }
 
 const isMittLikedByUser = `-- name: IsMittLikedByUser :one
@@ -206,12 +287,26 @@ func (q *Queries) LikeMitt(ctx context.Context, arg LikeMittParams) error {
 }
 
 const updateMitt = `-- name: UpdateMitt :one
-UPDATE mitts
-SET
-    content = $1,
-    updated_at = NOW()
-WHERE id = $2
-RETURNING id, author, content, created_at, updated_at
+WITH updated AS (
+    UPDATE mitts m
+    SET
+        content = $1,
+        updated_at = NOW()
+    WHERE m.id = $2
+    RETURNING id, author, content, created_at, updated_at
+)
+SELECT u.id, u.author, u.content, u.created_at, u.updated_at, us.name AS author_name, COUNT(ms.id) AS likes_count
+FROM updated AS u
+LEFT JOIN mitts_likes AS ms ON ms.mitt_id = u.id
+LEFT JOIN users AS us ON us.id = u.author
+GROUP BY
+    u.id,
+    u.author,
+    u.content,
+    u.created_at,
+    u.updated_at,
+    us.name
+LIMIT 1
 `
 
 type UpdateMittParams struct {
@@ -219,15 +314,27 @@ type UpdateMittParams struct {
 	ID      uuid.UUID
 }
 
-func (q *Queries) UpdateMitt(ctx context.Context, arg UpdateMittParams) (Mitt, error) {
+type UpdateMittRow struct {
+	ID         uuid.UUID
+	Author     uuid.UUID
+	Content    string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	AuthorName pgtype.Text
+	LikesCount int64
+}
+
+func (q *Queries) UpdateMitt(ctx context.Context, arg UpdateMittParams) (UpdateMittRow, error) {
 	row := q.db.QueryRow(ctx, updateMitt, arg.Content, arg.ID)
-	var i Mitt
+	var i UpdateMittRow
 	err := row.Scan(
 		&i.ID,
 		&i.Author,
 		&i.Content,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AuthorName,
+		&i.LikesCount,
 	)
 	return i, err
 }

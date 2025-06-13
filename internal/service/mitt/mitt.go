@@ -31,43 +31,10 @@ func (s *Service) CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models
 		}
 	}
 
-	if err := s.setAuthorName(ctx, newMitt); err != nil {
-		return nil, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}
-	}
-
 	// Update metrics
 	go s.mm.AddMitt()
 
 	return newMitt, nil
-}
-
-func (s *Service) setLikesCount(ctx context.Context, mitt *models.Mitt) error {
-	likesCount, err := s.mr.GetMittLikesCount(ctx, mitt.ID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil
-		}
-		slog.Error("error getting likes count", slog.Any("err", err))
-		return err
-	}
-	mitt.Likes = likesCount
-	return nil
-}
-
-func (s *Service) setAuthorName(ctx context.Context, mitt *models.Mitt) error {
-	user, err := s.ur.GetUserByID(ctx, mitt.AuthorID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil
-		}
-		slog.Error("error getting user id", slog.Any("err", err))
-		return err
-	}
-	mitt.AuthorName = user.Name
-	return nil
 }
 
 func (s *Service) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, *models.HTTPError) {
@@ -80,20 +47,6 @@ func (s *Service) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, *mod
 			}
 		}
 		slog.Error("error getting mitt", slog.Any("err", err))
-		return nil, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}
-	}
-
-	if err := s.setLikesCount(ctx, mitt); err != nil {
-		return nil, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}
-	}
-
-	if err := s.setAuthorName(ctx, mitt); err != nil {
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -116,22 +69,6 @@ func (s *Service) GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, 
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
-		}
-	}
-
-	for _, mitt := range mitts {
-		if err := s.setLikesCount(ctx, mitt); err != nil {
-			return nil, &models.HTTPError{
-				Code:    http.StatusInternalServerError,
-				Message: "Internal server error",
-			}
-		}
-
-		if err := s.setAuthorName(ctx, mitt); err != nil {
-			return nil, &models.HTTPError{
-				Code:    http.StatusInternalServerError,
-				Message: "Internal server error",
-			}
 		}
 	}
 
@@ -161,20 +98,6 @@ func (s *Service) UpdateMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 			}
 		}
 		slog.Error("error updating mitt", slog.Any("err", err))
-		return nil, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}
-	}
-
-	if err := s.setLikesCount(ctx, newMitt); err != nil {
-		return nil, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}
-	}
-
-	if err := s.setAuthorName(ctx, newMitt); err != nil {
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -261,22 +184,6 @@ func (s *Service) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt
 		return nil, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
-		}
-	}
-
-	for _, mitt := range mitts {
-		if err := s.setLikesCount(ctx, mitt); err != nil {
-			return nil, &models.HTTPError{
-				Code:    http.StatusInternalServerError,
-				Message: "Internal server error",
-			}
-		}
-
-		if err := s.setAuthorName(ctx, mitt); err != nil {
-			return nil, &models.HTTPError{
-				Code:    http.StatusInternalServerError,
-				Message: "Internal server error",
-			}
 		}
 	}
 

@@ -17,18 +17,8 @@ func NewMittRepository(q *storage.Queries) *MittRepository {
 	return &MittRepository{queries: q}
 }
 
-func mittDBToMitt(mittDB storage.Mitt) *models.Mitt {
-	return &models.Mitt{
-		ID:        mittDB.ID,
-		AuthorID:  mittDB.Author,
-		Content:   mittDB.Content,
-		CreatedAt: mittDB.CreatedAt.Time,
-		UpdatedAt: mittDB.UpdatedAt.Time,
-	}
-}
-
 func (r *MittRepository) CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models.MittCreate) (*models.Mitt, error) {
-	mittDB, err := r.queries.CreateMitt(ctx, storage.CreateMittParams{
+	row, err := r.queries.CreateMitt(ctx, storage.CreateMittParams{
 		Author:  userID,
 		Content: mitt.Content,
 	})
@@ -36,20 +26,40 @@ func (r *MittRepository) CreateMitt(ctx context.Context, userID uuid.UUID, mitt 
 		return nil, err
 	}
 
-	return mittDBToMitt(mittDB), nil
+	newMitt := &models.Mitt{
+		ID:         row.ID,
+		AuthorID:   row.Author,
+		AuthorName: row.AuthorName.String,
+		Content:    row.Content,
+		CreatedAt:  row.CreatedAt.Time,
+		UpdatedAt:  row.UpdatedAt.Time,
+		Likes:      row.LikesCount,
+	}
+
+	return newMitt, nil
 }
 
 func (r *MittRepository) GetMitt(ctx context.Context, id uuid.UUID) (*models.Mitt, error) {
-	mittDB, err := r.queries.GetMitt(ctx, id)
+	row, err := r.queries.GetMitt(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return mittDBToMitt(mittDB), nil
+	newMitt := &models.Mitt{
+		ID:         row.ID,
+		AuthorID:   row.Author,
+		AuthorName: row.AuthorName.String,
+		Content:    row.Content,
+		CreatedAt:  row.CreatedAt.Time,
+		UpdatedAt:  row.UpdatedAt.Time,
+		Likes:      row.LikesCount,
+	}
+
+	return newMitt, nil
 }
 
 func (r *MittRepository) GetAllUserMitts(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*models.Mitt, error) {
-	mittsDB, err := r.queries.GetAllUserMitts(ctx, storage.GetAllUserMittsParams{
+	rows, err := r.queries.GetAllUserMitts(ctx, storage.GetAllUserMittsParams{
 		Author: userID,
 		Limit:  limit,
 		Offset: offset,
@@ -58,16 +68,24 @@ func (r *MittRepository) GetAllUserMitts(ctx context.Context, userID uuid.UUID, 
 		return nil, err
 	}
 
-	mitts := make([]*models.Mitt, len(mittsDB))
-	for i, mittDB := range mittsDB {
-		mitts[i] = mittDBToMitt(mittDB)
+	mitts := make([]*models.Mitt, len(rows))
+	for i, row := range rows {
+		mitts[i] = &models.Mitt{
+			ID:         row.ID,
+			AuthorID:   row.Author,
+			AuthorName: row.AuthorName.String,
+			Content:    row.Content,
+			CreatedAt:  row.CreatedAt.Time,
+			UpdatedAt:  row.UpdatedAt.Time,
+			Likes:      row.LikesCount,
+		}
 	}
 
 	return mitts, nil
 }
 
 func (r *MittRepository) UpdateMitt(ctx context.Context, mittID uuid.UUID, mitt *models.MittUpdate) (*models.Mitt, error) {
-	mittDB, err := r.queries.UpdateMitt(ctx, storage.UpdateMittParams{
+	row, err := r.queries.UpdateMitt(ctx, storage.UpdateMittParams{
 		ID:      mittID,
 		Content: mitt.Content,
 	})
@@ -75,7 +93,17 @@ func (r *MittRepository) UpdateMitt(ctx context.Context, mittID uuid.UUID, mitt 
 		return nil, err
 	}
 
-	return mittDBToMitt(mittDB), nil
+	newMitt := &models.Mitt{
+		ID:         row.ID,
+		AuthorID:   row.Author,
+		AuthorName: row.AuthorName.String,
+		Content:    row.Content,
+		CreatedAt:  row.CreatedAt.Time,
+		UpdatedAt:  row.UpdatedAt.Time,
+		Likes:      row.LikesCount,
+	}
+
+	return newMitt, nil
 }
 
 func (r *MittRepository) DeleteMitt(ctx context.Context, mittID uuid.UUID) error {
@@ -112,12 +140,8 @@ func (r *MittRepository) DeleteMittLike(ctx context.Context, userID uuid.UUID, m
 	})
 }
 
-func (r *MittRepository) GetMittLikesCount(ctx context.Context, mittID uuid.UUID) (int64, error) {
-	return r.queries.GetMittLikesCount(ctx, mittID)
-}
-
 func (r *MittRepository) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, error) {
-	mittsDB, err := r.queries.Feed(ctx, storage.FeedParams{
+	rows, err := r.queries.Feed(ctx, storage.FeedParams{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -125,9 +149,17 @@ func (r *MittRepository) Feed(ctx context.Context, limit, offset int32) ([]*mode
 		return nil, err
 	}
 
-	mitts := make([]*models.Mitt, len(mittsDB))
-	for i, mittDB := range mittsDB {
-		mitts[i] = mittDBToMitt(mittDB)
+	mitts := make([]*models.Mitt, len(rows))
+	for i, row := range rows {
+		mitts[i] = &models.Mitt{
+			ID:         row.ID,
+			AuthorID:   row.Author,
+			AuthorName: row.AuthorName.String,
+			Content:    row.Content,
+			CreatedAt:  row.CreatedAt.Time,
+			UpdatedAt:  row.UpdatedAt.Time,
+			Likes:      row.LikesCount,
+		}
 	}
 
 	return mitts, nil
