@@ -2,6 +2,8 @@ package mitt
 
 import (
 	"context"
+	"log/slog"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,6 +20,8 @@ var mockMittModel = &models.Mitt{
 }
 
 var mockUserID = uuid.New()
+
+var testLogger = slog.New(slog.NewTextHandler(os.Stdin, &slog.HandlerOptions{}))
 
 // Mock mitt repo
 type mockMittRepo struct{}

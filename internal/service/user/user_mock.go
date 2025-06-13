@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"log/slog"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/misshanya/mitter/internal/models"
@@ -23,6 +25,8 @@ var (
 		HashedPassword: "$2a$10$OW9yD0TyX0pOBO2MzJhtpeOC6O694OS37VJnnaJKFm.rUFt5fy4O6",
 	}
 	testUser2ID = uuid.MustParse("38386ffe-54ac-48be-9244-a5144b41a014")
+
+	testLogger = slog.New(slog.NewTextHandler(os.Stdin, &slog.HandlerOptions{}))
 )
 
 // Mock User repo

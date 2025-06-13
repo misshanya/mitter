@@ -9,7 +9,7 @@ import (
 
 // Tests
 func TestUserService_GetUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{}, testLogger)
 	ctx := context.Background()
 
 	user, err := service.GetUser(ctx, testUserID)
@@ -21,7 +21,7 @@ func TestUserService_GetUser(t *testing.T) {
 }
 
 func TestUserService_DeleteUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{}, testLogger)
 	ctx := context.Background()
 
 	err := service.DeleteUser(ctx, testUserID)
@@ -31,7 +31,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 }
 
 func TestUserService_UpdateUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{}, testLogger)
 	ctx := context.Background()
 
 	newName := "new name"
@@ -45,7 +45,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 }
 
 func TestUserService_FollowUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{}, testLogger)
 	ctx := context.Background()
 
 	err := service.FollowUser(ctx, testUserID, testUser2ID)
@@ -55,7 +55,7 @@ func TestUserService_FollowUser(t *testing.T) {
 }
 
 func TestUserService_UnfollowUser(t *testing.T) {
-	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{}, testLogger)
 	ctx := context.Background()
 
 	err := service.UnfollowUser(ctx, testUserID, testUser2ID)
@@ -65,7 +65,7 @@ func TestUserService_UnfollowUser(t *testing.T) {
 }
 
 func TestUserService_GetUserFollows(t *testing.T) {
-	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{}, testLogger)
 	ctx := context.Background()
 
 	follows, err := service.GetUserFollows(ctx, testUserID, 30, 0)
@@ -77,7 +77,7 @@ func TestUserService_GetUserFollows(t *testing.T) {
 }
 
 func TestUserService_GetUserFollowers(t *testing.T) {
-	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{})
+	service := NewUserService(&mockUserRepo{}, &mockUserMetrics{}, testLogger)
 	ctx := context.Background()
 
 	followers, err := service.GetUserFollowers(ctx, testUserID, 30, 0)

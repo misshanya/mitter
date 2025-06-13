@@ -10,7 +10,7 @@ import (
 
 // Tests
 func TestAuthService_SignIn(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{})
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{}, testLogger)
 
 	ctx := context.Background()
 
@@ -29,7 +29,7 @@ func TestAuthService_SignIn(t *testing.T) {
 }
 
 func TestAuthService_SignUp(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{})
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{}, testLogger)
 
 	ctx := context.Background()
 
@@ -49,7 +49,7 @@ func TestAuthService_SignUp(t *testing.T) {
 }
 
 func TestAuthService_ChangePassword(t *testing.T) {
-	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{})
+	service := NewAuthService(&mockUserRepo{}, &mockAuthRepo{}, &mockUserMetrics{}, testLogger)
 
 	ctx := context.Background()
 

@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"log/slog"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/misshanya/mitter/internal/models"
@@ -15,6 +17,8 @@ var (
 		HashedPassword: "$argon2id$v=19$m=65536,t=3,p=2$VUNCT0J2RG9NV2xSd1d0eQ$7604v3WFNe5CL1Nt1hVUKXZnuZAuP0l3LSzxRUFtZl0",
 	}
 	testUserID = uuid.MustParse("b096376a-5fa9-4130-907a-709c67008a65")
+
+	testLogger = slog.New(slog.NewTextHandler(os.Stdin, &slog.HandlerOptions{}))
 )
 
 // Mock Auth repo
