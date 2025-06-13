@@ -168,5 +168,11 @@ func (s *Service) ChangePassword(ctx context.Context, id uuid.UUID, changePasswo
 }
 
 func (s *Service) GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error) {
-	return s.ar.GetUserIDByToken(ctx, token)
+	id, err := s.ar.GetUserIDByToken(ctx, token)
+	if err != nil {
+		s.l.Error("error getting user id by token", slog.Any("err", err))
+		return uuid.Nil, err
+	}
+
+	return id, nil
 }

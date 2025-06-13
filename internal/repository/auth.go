@@ -5,7 +5,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/misshanya/mitter/internal/models"
 	"github.com/redis/go-redis/v9"
-	"log/slog"
 	"time"
 )
 
@@ -27,14 +26,12 @@ func (r *AuthRepository) GetUserIDByToken(ctx context.Context, token string) (uu
 	// Get uuid string
 	userIDString, err := r.rdb.Get(ctx, token).Result()
 	if err != nil {
-		slog.Error("error getting user id from redis", slog.String("token", token))
 		return uuid.Nil, err
 	}
 
 	// Parse string to uuid
 	id, err := uuid.Parse(userIDString)
 	if err != nil {
-		slog.Error("error parsing user id from redis", slog.String("token", token), slog.String("userID", userIDString), slog.String("error", err.Error()))
 		return uuid.Nil, err
 	}
 	return id, nil
