@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/misshanya/mitter/internal/app"
 	"github.com/misshanya/mitter/internal/config"
 	"log/slog"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -21,18 +21,25 @@ func main() {
 	cfg := config.NewConfig(logger)
 	server := app.NewApp(cfg, logger)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	// Start server
-	go server.Start(ctx)
+	errChan := make(chan error)
+	go server.Start(ctx, errChan)
 
-	// Wait for interrupt signal to gracefully shut down the server with a timeout of 10 seconds.
-	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	fmt.Println("shutting down")
-	if err := server.Stop(ctx); err != nil {
-		slog.Error("failed to stop server", slog.Any("err", err))
+	// Wait for the error in starting of the server
+	// OR interrupt/SIGTERM signals to gracefully shut down
+	select {
+	case err := <-errChan:
+		logger.Error("failed to start server", slog.Any("error", err))
+		os.Exit(1)
+	case <-ctx.Done():
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Stop(ctx); err != nil {
+			logger.Error("failed to stop server", slog.Any("err", err))
+			os.Exit(1)
+		}
 	}
 }
 

@@ -3,7 +3,9 @@ package app
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log/slog"
+	"net/http"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,42 +29,44 @@ import (
 )
 
 type App struct {
-	cfg *config.Config
-	e   *echo.Echo
-	l   *slog.Logger
+	cfg    *config.Config
+	e      *echo.Echo
+	l      *slog.Logger
+	dbPool *pgxpool.Pool
+	rdb    *redis.Client
 }
 
 func NewApp(cfg *config.Config, logger *slog.Logger) *App {
 	return &App{cfg: cfg, l: logger}
 }
 
-func (a *App) Start(ctx context.Context) {
-	rdb := redis.NewClient(&redis.Options{
+func (a *App) Start(ctx context.Context, errChan chan<- error) {
+	a.rdb = redis.NewClient(&redis.Options{
 		Addr:     a.cfg.Redis.Addr,
 		Password: a.cfg.Redis.Password,
 		DB:       a.cfg.Redis.DB,
 	})
 
-	err := rdb.Ping(ctx).Err()
+	err := a.rdb.Ping(ctx).Err()
 	if err != nil {
 		a.l.Error("failed to connect to redis")
 		os.Exit(1)
 	}
 
 	// Init db connection
-	conn, err := initDB(ctx, a.cfg.Postgres.URL)
+	a.dbPool, err = initDB(ctx, a.cfg.Postgres.URL)
 	if err != nil {
 		a.l.Error("failed to connect to database")
 		os.Exit(1)
 	}
 
-	if err := db.Migrate(sql.OpenDB(stdlib.GetConnector(*conn.Config().ConnConfig))); err != nil {
+	if err := db.Migrate(sql.OpenDB(stdlib.GetConnector(*a.dbPool.Config().ConnConfig))); err != nil {
 		a.l.Error("failed to migrate database", slog.Any("err", err))
 		os.Exit(1)
 	}
 
 	// Init SQL queries
-	queries := storage.New(conn)
+	queries := storage.New(a.dbPool)
 
 	a.e = echo.New()
 	a.e.Use(middleware.Recover())
@@ -92,7 +96,7 @@ func (a *App) Start(ctx context.Context) {
 
 	// Repos
 	userRepo := repository.NewUserRepository(queries)
-	authRepo := repository.NewAuthRepository(rdb)
+	authRepo := repository.NewAuthRepository(a.rdb)
 	mittRepo := repository.NewMittRepository(queries)
 
 	// Services
@@ -121,11 +125,40 @@ func (a *App) Start(ctx context.Context) {
 	authHandler.Routes(authGroup)
 	mittHandler.Routes(mittGroup)
 
-	a.e.Logger.Fatal(a.e.Start(a.cfg.Server.Addr))
+	if err := a.e.Start(a.cfg.Server.Addr); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		errChan <- err
+	}
 }
 
 func (a *App) Stop(ctx context.Context) error {
-	return a.e.Shutdown(ctx)
+	a.l.Info("[!] Shutting down...")
+
+	var stopErr error
+
+	// Stop server
+	a.l.Info("Stopping http server...")
+	if err := a.e.Shutdown(ctx); err != nil {
+		a.l.Error("failed to stop http server", slog.Any("error", err))
+		stopErr = errors.Join(stopErr, err)
+	}
+
+	// Close DB pool
+	a.l.Info("Closing database pool...")
+	a.dbPool.Close()
+
+	// Close Redis connection
+	a.l.Info("Closing Redis connection...")
+	if err := a.rdb.Close(); err != nil {
+		a.l.Error("failed to close redis connection", slog.Any("error", err))
+		stopErr = errors.Join(stopErr, err)
+	}
+
+	if stopErr != nil {
+		return stopErr
+	}
+
+	a.l.Info("Stopped gracefully")
+	return nil
 }
 
 func initDB(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {
