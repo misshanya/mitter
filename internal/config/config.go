@@ -2,8 +2,6 @@ package config
 
 import (
 	"github.com/ilyakaznacheev/cleanenv"
-	"log/slog"
-	"os"
 )
 
 type Config struct {
@@ -27,14 +25,13 @@ type postgres struct {
 	URL string `env:"PG_URL" env-required:"true"`
 }
 
-func NewConfig(logger *slog.Logger) *Config {
+func NewConfig() (*Config, error) {
 	var cfg Config
 
 	err := cleanenv.ReadEnv(&cfg)
 	if err != nil {
-		logger.Error("failed to read config", slog.Any("err", err))
-		os.Exit(1)
+		return nil, err
 	}
 
-	return &cfg
+	return &cfg, nil
 }

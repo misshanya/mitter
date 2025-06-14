@@ -18,7 +18,13 @@ import (
 // @BasePath	/api/v1
 func main() {
 	logger := setupLogger()
-	cfg := config.NewConfig(logger)
+
+	cfg, err := config.NewConfig()
+	if err != nil {
+		logger.Error("failed to read config", slog.Any("error", err))
+		os.Exit(1)
+	}
+
 	server := app.NewApp(cfg, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
