@@ -136,7 +136,6 @@ func (a *App) Stop(ctx context.Context) error {
 	// Stop server
 	a.l.Info("Stopping http server...")
 	if err := a.e.Shutdown(ctx); err != nil {
-		a.l.Error("failed to stop http server", slog.Any("error", err))
 		stopErr = errors.Join(stopErr, err)
 	}
 
@@ -147,7 +146,6 @@ func (a *App) Stop(ctx context.Context) error {
 	// Close Redis connection
 	a.l.Info("Closing Redis connection...")
 	if err := a.rdb.Close(); err != nil {
-		a.l.Error("failed to close redis connection", slog.Any("error", err))
 		stopErr = errors.Join(stopErr, err)
 	}
 
