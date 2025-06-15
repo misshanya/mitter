@@ -4,10 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log/slog"
-	"net/http"
-	"os"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo-contrib/echoprometheus"
@@ -26,6 +22,8 @@ import (
 	"github.com/misshanya/mitter/internal/service/user"
 	"github.com/redis/go-redis/v9"
 	echoSwagger "github.com/swaggo/echo-swagger"
+	"log/slog"
+	"net/http"
 )
 
 type App struct {
@@ -49,20 +47,20 @@ func (a *App) Start(ctx context.Context, errChan chan<- error) {
 
 	err := a.rdb.Ping(ctx).Err()
 	if err != nil {
-		a.l.Error("failed to connect to redis")
-		os.Exit(1)
+		errChan <- err
+		return
 	}
 
 	// Init db connection
 	a.dbPool, err = initDB(ctx, a.cfg.Postgres.URL)
 	if err != nil {
-		a.l.Error("failed to connect to database")
-		os.Exit(1)
+		errChan <- err
+		return
 	}
 
 	if err := db.Migrate(sql.OpenDB(stdlib.GetConnector(*a.dbPool.Config().ConnConfig))); err != nil {
-		a.l.Error("failed to migrate database", slog.Any("err", err))
-		os.Exit(1)
+		errChan <- err
+		return
 	}
 
 	// Init SQL queries
