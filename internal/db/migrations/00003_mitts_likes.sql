@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS mitts_likes (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     mitt_id UUID NOT NULL REFERENCES mitts(id) ON DELETE CASCADE,
     liked_at TIMESTAMP DEFAULT NOW(),
     UNIQUE (user_id, mitt_id)

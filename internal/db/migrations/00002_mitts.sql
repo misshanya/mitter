@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS mitts (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-    author UUID NOT NULL REFERENCES users(id),
+    author UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()

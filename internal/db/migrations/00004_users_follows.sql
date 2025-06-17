@@ -2,8 +2,8 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS users_follows (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-    follower_id UUID NOT NULL REFERENCES users(id),
-    followee_id UUID NOT NULL REFERENCES users(id),
+    follower_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    followee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE(follower_id, followee_id)
 );
 
