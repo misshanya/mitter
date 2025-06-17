@@ -85,10 +85,6 @@ INSERT INTO mitts_likes (
     @user_id, @mitt_id
 );
 
--- name: IsMittLikedByUser :one
-SELECT 1 FROM mitts_likes
-WHERE user_id = @user_id AND mitt_id = @mitt_id;
-
 -- name: DeleteMittLike :exec
 DELETE FROM mitts_likes
 WHERE user_id = @user_id AND mitt_id = @mitt_id;

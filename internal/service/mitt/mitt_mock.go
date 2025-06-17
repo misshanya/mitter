@@ -2,6 +2,7 @@ package mitt
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5/pgconn"
 	"log/slog"
 	"os"
 	"time"
@@ -24,7 +25,9 @@ var mockUserID = uuid.New()
 var testLogger = slog.New(slog.NewTextHandler(os.Stdin, &slog.HandlerOptions{}))
 
 // Mock mitt repo
-type mockMittRepo struct{}
+type mockMittRepo struct {
+	isLikeUniqueViolation bool
+}
 
 func (m mockMittRepo) CreateMitt(ctx context.Context, userID uuid.UUID, mitt *models.MittCreate) (*models.Mitt, error) {
 	_ = ctx
@@ -68,6 +71,10 @@ func (m mockMittRepo) DeleteMitt(ctx context.Context, mittID uuid.UUID) error {
 	return nil
 }
 
+func (m *mockMittRepo) SwitchLikeUniqueViolation() {
+	m.isLikeUniqueViolation = !m.isLikeUniqueViolation
+}
+
 func (m mockMittRepo) LikeMitt(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error {
 	_ = ctx
 	_ = userID
@@ -76,16 +83,13 @@ func (m mockMittRepo) LikeMitt(ctx context.Context, userID uuid.UUID, mittID uui
 	// Add like to mock mitt
 	mockMittModel.Likes++
 
+	if m.isLikeUniqueViolation {
+		return &pgconn.PgError{
+			Code: "23505",
+		}
+	}
+
 	return nil
-}
-
-func (m mockMittRepo) IsMittLikedByUser(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, error) {
-	_ = ctx
-	_ = userID
-	_ = mittID
-
-	// Let's assume that if mock model has >=1 like, mitt is liked by user, if less, no
-	return mockMittModel.Likes >= 1, nil
 }
 
 func (m mockMittRepo) DeleteMittLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error {
