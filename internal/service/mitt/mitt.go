@@ -3,6 +3,7 @@ package mitt
 import (
 	"context"
 	"errors"
+	"github.com/misshanya/mitter/pkg/pgutil"
 	"log/slog"
 	"net/http"
 
@@ -151,6 +152,13 @@ func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.
 
 	if !isAlreadyLiked {
 		if err := s.mr.LikeMitt(ctx, userID, mittID); err != nil {
+			if pgutil.IsForeignKeyViolation(err) {
+				return false, &models.HTTPError{
+					Code:    http.StatusNotFound,
+					Message: "Mitt doesn't exist",
+				}
+			}
+
 			s.l.Error("error liking mitt", slog.Any("err", err))
 			return false, &models.HTTPError{
 				Code:    http.StatusInternalServerError,
