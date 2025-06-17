@@ -79,7 +79,8 @@ func TestMittService_DeleteMitt(t *testing.T) {
 }
 
 func TestMittService_SwitchLike(t *testing.T) {
-	service := NewService(mockMittRepo{}, &mockMittMetrics{}, &mockUserRepo{}, testLogger)
+	mmr := mockMittRepo{}
+	service := NewService(&mmr, &mockMittMetrics{}, &mockUserRepo{}, testLogger)
 	ctx := context.Background()
 
 	// Like mitt
@@ -91,6 +92,9 @@ func TestMittService_SwitchLike(t *testing.T) {
 	if !newState {
 		t.Fatal("liked state should be true")
 	}
+
+	// Return unique violation in mock
+	mmr.SwitchLikeUniqueViolation()
 
 	// Remove like
 	newState, err = service.SwitchLike(ctx, mockUserID, mockMittModel.ID)

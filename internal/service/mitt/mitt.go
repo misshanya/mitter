@@ -140,50 +140,61 @@ func (s *Service) DeleteMitt(ctx context.Context, userID uuid.UUID, mittID uuid.
 
 // Likes
 
-func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, *models.HTTPError) {
-	isAlreadyLiked, err := s.mr.IsMittLikedByUser(ctx, userID, mittID)
+func (s *Service) addLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error {
+	err := s.mr.LikeMitt(ctx, userID, mittID)
 	if err != nil {
-		s.l.Error("error getting isAlreadyLiked", slog.Any("err", err))
+		return err
+	}
+
+	// Add like in metrics
+	go s.mm.AddLike()
+
+	return nil
+}
+
+func (s *Service) deleteLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) error {
+	err := s.mr.DeleteMittLike(ctx, userID, mittID)
+	if err != nil {
+		return err
+	}
+
+	// Delete like in metrics
+	go s.mm.DeleteLike()
+
+	return nil
+}
+
+func (s *Service) SwitchLike(ctx context.Context, userID uuid.UUID, mittID uuid.UUID) (bool, *models.HTTPError) {
+	err := s.addLike(ctx, userID, mittID)
+	if err != nil && !pgutil.IsUniqueViolation(err) {
+		// If mitt doesn't exist
+		if pgutil.IsForeignKeyViolation(err) {
+			return false, &models.HTTPError{
+				Code:    http.StatusNotFound,
+				Message: "Mitt doesn't exist",
+			}
+		}
+
+		s.l.Error("error liking mitt", slog.Any("err", err))
 		return false, &models.HTTPError{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
 		}
-	}
-
-	if !isAlreadyLiked {
-		if err := s.mr.LikeMitt(ctx, userID, mittID); err != nil {
-			if pgutil.IsForeignKeyViolation(err) {
-				return false, &models.HTTPError{
-					Code:    http.StatusNotFound,
-					Message: "Mitt doesn't exist",
-				}
-			}
-
-			s.l.Error("error liking mitt", slog.Any("err", err))
+	} else if pgutil.IsUniqueViolation(err) {
+		// Delete like
+		err := s.deleteLike(ctx, userID, mittID)
+		if err != nil {
+			s.l.Error("error deleting mitt like", slog.Any("err", err))
 			return false, &models.HTTPError{
 				Code:    http.StatusInternalServerError,
 				Message: "Internal server error",
 			}
 		}
 
-		// Add like in metrics
-		go s.mm.AddLike()
-
-		return true, nil
+		return false, nil
 	}
 
-	if err := s.mr.DeleteMittLike(ctx, userID, mittID); err != nil {
-		s.l.Error("error deleting mitt like", slog.Any("err", err))
-		return false, &models.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}
-	}
-
-	// Delete like in metrics
-	go s.mm.DeleteLike()
-
-	return false, nil
+	return true, nil
 }
 
 func (s *Service) Feed(ctx context.Context, limit, offset int32) ([]*models.Mitt, *models.HTTPError) {

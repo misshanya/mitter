@@ -251,23 +251,6 @@ func (q *Queries) GetMitt(ctx context.Context, id uuid.UUID) (GetMittRow, error)
 	return i, err
 }
 
-const isMittLikedByUser = `-- name: IsMittLikedByUser :one
-SELECT 1 FROM mitts_likes
-WHERE user_id = $1 AND mitt_id = $2
-`
-
-type IsMittLikedByUserParams struct {
-	UserID uuid.UUID
-	MittID uuid.UUID
-}
-
-func (q *Queries) IsMittLikedByUser(ctx context.Context, arg IsMittLikedByUserParams) (int32, error) {
-	row := q.db.QueryRow(ctx, isMittLikedByUser, arg.UserID, arg.MittID)
-	var column_1 int32
-	err := row.Scan(&column_1)
-	return column_1, err
-}
-
 const likeMitt = `-- name: LikeMitt :exec
 INSERT INTO mitts_likes (
     user_id, mitt_id
