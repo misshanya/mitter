@@ -21,29 +21,33 @@ func main() {
 
 	cfg, err := config.NewConfig()
 	if err != nil {
-		logger.Error("failed to read config", slog.Any("error", err))
+		logger.Error("failed to read config", "error")
 		os.Exit(1)
 	}
 
-	server := app.NewApp(cfg, logger)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	server, err := app.New(ctx, cfg, logger)
+	if err != nil {
+		logger.Error("failed to create app", "error", err)
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	// Start server
-	errChan := make(chan error)
-	go server.Start(ctx, errChan)
 
-	// Wait for the error in starting of the server
-	// OR interrupt/SIGTERM signals to gracefully shut down
+	errChan := make(chan error)
+	go server.Start(errChan)
+
 	select {
 	case err := <-errChan:
-		logger.Error("failed to start server", slog.Any("error", err))
+		logger.Error("failed to start server", "error", err)
 		os.Exit(1)
 	case <-ctx.Done():
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := server.Stop(ctx); err != nil {
-			logger.Error("failed to stop server", slog.Any("err", err))
+			logger.Error("failed to stop server", "err", err)
 			os.Exit(1)
 		}
 	}

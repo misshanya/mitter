@@ -22,7 +22,8 @@ type redis struct {
 }
 
 type postgres struct {
-	URL string `env:"PG_URL" env-required:"true"`
+	URL      string `env:"PG_URL" env-required:"true"`
+	MaxConns int32  `env:"PG_MAX_CONNS" env-default:"100"`
 }
 
 func NewConfig() (*Config, error) {
